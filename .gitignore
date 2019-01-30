@@ -1,4 +1,4 @@
-# Prerequisites
+jj/G# Prerequisites
 *.d
 
 # Compiled Object files
@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+
+# directories
+Debug
+
