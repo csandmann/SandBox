@@ -4,9 +4,9 @@
  *  Created on: Jan 29, 2019
  *      Author: check
  */
-#include "ThreadReader.h"
 #include <thread>
 #include <experimental/filesystem>
+#include "Reader.h"
 
 ClThreadReader::ClThreadReader()
 {

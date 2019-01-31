@@ -15,8 +15,11 @@ bool ClAudioDatabase::audioEntryFromKey(int nKey, StAudioItem& stAudioItem)
 {
 	if (m_oAudioMap.find(nKey) != m_oAudioMap.end())
 	{
-		stAudioItem.sAudioInfo =
+		stAudioItem = m_oAudioMap[nKey];
 		return true;
+	}
+	else {
+		return false;
 	}
 }
 
