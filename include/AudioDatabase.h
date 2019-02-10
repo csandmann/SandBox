@@ -21,6 +21,7 @@ enum class EAudioSource
 
 struct StAudioItem
 {
+	bool bKeyFound;
 	EAudioSource eSource;
 	std::string sAudioInfo;
 };
@@ -31,7 +32,7 @@ public:
 	ClAudioDatabase();
 	~ClAudioDatabase();
 	bool isKeyRegistered(int nKey);
-	bool audioEntryFromKey(int nKey, StAudioItem &stAudioItem);
+	StAudioItem audioItemFromKey(int nKey);
 	void reinitialize();
 private:
 	void initialize();

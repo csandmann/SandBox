@@ -11,16 +11,19 @@ ClAudioDatabase::ClAudioDatabase() {}
 
 ClAudioDatabase::~ClAudioDatabase() {}
 
-bool ClAudioDatabase::audioEntryFromKey(int nKey, StAudioItem& stAudioItem)
+StAudioItem ClAudioDatabase::audioItemFromKey(int nKey)
 {
+	StAudioItem stAudioItem;
 	if (m_oAudioMap.find(nKey) != m_oAudioMap.end())
 	{
 		stAudioItem = m_oAudioMap[nKey];
-		return true;
+		stAudioItem.bKeyFound = true;
 	}
-	else {
-		return false;
+	else
+	{
+		stAudioItem.bKeyFound = false;
 	}
+	return stAudioItem;
 }
 
 void ClAudioDatabase::reinitialize()
