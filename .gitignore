@@ -34,3 +34,7 @@ jj/G# Prerequisites
 # directories
 Debug
 
+#stuff
+.cproject
+.project
+.settings
