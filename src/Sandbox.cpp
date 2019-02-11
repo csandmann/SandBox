@@ -7,8 +7,10 @@
 //============================================================================
 
 #include <iostream>
+#include "AudioDatabase.h"
 
 int main() {
-	std::cout << "Hello World" << std::endl;
+	ClAudioDatabase oAudioDb;
+	StAudioItem stItem = oAudioDb.audioItemFromKey(1234);
 	return 0;
 }

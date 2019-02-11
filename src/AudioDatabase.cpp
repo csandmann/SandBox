@@ -7,11 +7,13 @@
 #include "AudioDatabase.h"
 #include <fstream>
 
-ClAudioDatabase::ClAudioDatabase() {}
+ClAudioDatabase::ClAudioDatabase() {
+	initialize();
+}
 
 ClAudioDatabase::~ClAudioDatabase() {}
 
-StAudioItem ClAudioDatabase::audioItemFromKey(int nKey)
+StAudioItem ClAudioDatabase::audioItemFromKey(const int nKey)
 {
 	StAudioItem stAudioItem;
 	if (m_oAudioMap.find(nKey) != m_oAudioMap.end())
@@ -26,24 +28,32 @@ StAudioItem ClAudioDatabase::audioItemFromKey(int nKey)
 	return stAudioItem;
 }
 
-void ClAudioDatabase::reinitialize()
+bool ClAudioDatabase::reinitialize()
 {
 	m_oAudioMap.clear();
-	initialize();
+	return initialize();
 }
 
-void ClAudioDatabase::initialize()
+bool ClAudioDatabase::initialize()
 {
- for (const auto &oEntry : fs::directory_iterator("./AudioDatabase/"))
+ try
  {
-	 StAudioItem stAudioItem;
-	 audioItemFromFile(oEntry.path(), stAudioItem);
-	 int nEntry = std::atoi(oEntry.path().string().c_str());
-	 m_oAudioMap[nEntry] = stAudioItem;
+	 for (const auto &oEntry : fs::directory_iterator("/home/check/test/AudioDatabase/"))
+	 {
+		 StAudioItem stAudioItem = audioItemFromFile(oEntry.path());
+		 int nEntry = std::atoi(oEntry.path().filename().string().c_str());
+		 m_oAudioMap[nEntry] = stAudioItem;
+	 }
+	 return true;
+ }
+ catch (std::exception &e)
+ {
+	 std::printf("bool ClAudioDatabase::initialize(): %s", e.what());
+	 return false;
  }
 }
 
-void ClAudioDatabase::audioItemFromFile(fs::path oPath, StAudioItem &stAudioItem)
+StAudioItem ClAudioDatabase::audioItemFromFile(const fs::path &oPath)
 {
 	std::string sAudioSource;
 	std::string sAudioInfo;
@@ -51,6 +61,8 @@ void ClAudioDatabase::audioItemFromFile(fs::path oPath, StAudioItem &stAudioItem
 	std::getline(fin, sAudioSource);
 	std::getline(fin, sAudioInfo);
 	fin.close();
+	StAudioItem stAudioItem;
 	stAudioItem.eSource = static_cast<EAudioSource>(std::atoi(sAudioSource.c_str()));
 	stAudioItem.sAudioInfo = sAudioInfo;
+	return stAudioItem;
 }

@@ -31,12 +31,11 @@ class ClAudioDatabase
 public:
 	ClAudioDatabase();
 	~ClAudioDatabase();
-	bool isKeyRegistered(int nKey);
-	StAudioItem audioItemFromKey(int nKey);
-	void reinitialize();
+	StAudioItem audioItemFromKey(const int nKey);
+	bool reinitialize();
 private:
-	void initialize();
-	void audioItemFromFile(fs::path oFilePath, StAudioItem &stAudioItem);
+	bool initialize();
+	StAudioItem audioItemFromFile(const fs::path &oFilePath);
 	std::map<int, StAudioItem> m_oAudioMap;
 };
 
