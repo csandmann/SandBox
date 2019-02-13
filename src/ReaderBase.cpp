@@ -3,7 +3,7 @@
 
 ClReaderBase::ClReaderBase():
 m_bInterruptRequested(false),
-m_nReaderDelay(50)
+m_nReaderDelay(1000)
 {}
 
 ClReaderBase::~ClReaderBase() {}

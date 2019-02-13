@@ -6,10 +6,12 @@ ClPlayer::ClPlayer() {
 ClPlayer::~ClPlayer() {
 }
 
-void ClPlayer::play(StAudioItem& stMsg) {
+void ClPlayer::play(const StAudioItem& stMsg) {
+	printf("Starting playback of %s (source: %i)\n", stMsg.sAudioInfo.c_str(), (int) stMsg.eSource);
 }
 
 void ClPlayer::stop() {
+	printf("Playback stopped.\n");
 }
 
 void ClPlayer::pause() {

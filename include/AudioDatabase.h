@@ -21,7 +21,7 @@ enum class EAudioSource
 
 struct StAudioItem
 {
-	bool bKeyFound;
+	bool bIsInitialized;
 	EAudioSource eSource;
 	std::string sAudioInfo;
 };

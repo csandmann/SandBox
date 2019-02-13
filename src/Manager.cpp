@@ -13,7 +13,7 @@ m_spPlayer(spPlayer),
 m_spReader(spReader),
 m_spAudioDb(spAudioDb),
 m_bInterruptRequested(false),
-m_nWaitTime(10)
+m_nWaitTime(500)
 {}
 
 ClManager::~ClManager() {}
@@ -26,7 +26,7 @@ void ClManager::start()
 		if (playbackNeeded(stMsg))
 		{
 			StAudioItem stAudioItem = m_spAudioDb->audioItemFromKey(stMsg.nKey);
-			if (stAudioItem.bKeyFound)
+			if (stAudioItem.bIsInitialized)
 			{
 				m_spPlayer->play(stAudioItem);
 			}

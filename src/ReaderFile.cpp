@@ -9,7 +9,7 @@
 #include <string>
 
 ClReaderFile::ClReaderFile():
-m_oRFIDPath("rfid.txt")
+m_oRFIDPath("/home/check/test/rfid")
 {}
 
 ClReaderFile::~ClReaderFile() {}

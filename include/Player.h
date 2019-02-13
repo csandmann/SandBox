@@ -16,11 +16,11 @@ class ClPlayer
 public:
 	ClPlayer();
 	~ClPlayer();
-	void play(StAudioItem &stMsg);
+	void play(const StAudioItem &stMsg);
 	void stop();
 	void pause();
 private:
-	void playSpotify(std::string sMessage);
+	void playSpotify(const std::string sMessage);
 };
 
 #endif /* PLAYER_H_ */
