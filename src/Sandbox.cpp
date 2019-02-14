@@ -12,9 +12,11 @@
 #include "Manager.h"
 #include "Player.h"
 #include "ReaderFile.h"
+#include "Webserver.h"
 
 int main() {
 	//initialize components
+	auto spWebserver = std::make_shared<ClWebserver>();
 	auto spAudioDb = std::make_shared<ClAudioDatabase>();
 	auto spPlayer = std::make_shared<ClPlayer>();
 	auto spReader = std::make_shared<ClReaderFile>();
