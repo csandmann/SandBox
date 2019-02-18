@@ -66,7 +66,7 @@ StAudioItem ClAudioDatabase::audioItemFromFile(const fs::path &oPath)
 		std::getline(fin, sAudioSource);
 		std::getline(fin, sAudioInfo);
 		fin.close();
-		stAudioItem.eSource = static_cast<EAudioSource>(std::atoi(sAudioSource.c_str()));
+		stAudioItem.sSource = sAudioSource;
 		stAudioItem.sAudioInfo = sAudioInfo;
 		stAudioItem.bIsInitialized = true;
 	}

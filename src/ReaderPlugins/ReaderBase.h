@@ -32,7 +32,7 @@ public:
 	void stop();
 	StReaderMessage getMessage();
 private:
-	virtual StReaderMessage read() = 0;
+	virtual const StReaderMessage read() = 0;
 	std::chrono::milliseconds m_nReaderDelay;
 	StReaderMessage m_stReaderMessage;
 	bool m_bInterruptRequested;

@@ -8,28 +8,29 @@
 
 #include <iostream>
 #include <thread>
+//logging
 #include <spdlog/async.h>
 #include <spdlog/sinks/basic_file_sink.h>
-
-#include "PlayerPlugins/PlayerBase.h"
+//plugins
+#include "PlayerPlugins/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderFile.h"
-
+//main stuff
 #include "AudioDatabase.h"
 #include "Manager.h"
 #include "Webserver.h"
 
-auto async_file = spdlog::basic_logger_mt<spdlog::async_factory>("SandBox", "SandBox.log");
+auto oLogger = spdlog::basic_logger_mt<spdlog::async_factory>("SandBox", "SandBox.log");
 
 int main() {
 	//initialize components
-	auto spWebserver = std::make_shared<ClWebserver>();
-	auto spAudioDb = std::make_shared<ClAudioDatabase>();
-	auto spPlayer = std::make_shared<ClPlayerBase>();
-	auto spReader = std::make_shared<ClReaderFile>();
-	auto spManager = std::make_unique<ClManager>(spPlayer, spReader, spAudioDb);
+	auto oWebserver = ClWebserver();
+	auto oAudioDb = ClAudioDatabase();
+	auto oPlayer = ClPlayerBase();
+	auto oReader = ClReaderFile();
+	auto oManager = ClManager(oPlayer, oReader, oAudioDb);
 	//start threads
-	std::thread oReaderThread = std::thread(&ClReaderFile::start, spReader.get());
-	std::thread oManagerThread = std::thread(&ClManager::start, spManager.get());
+	std::thread oReaderThread = std::thread(&ClReaderFile::start, &oReader);
+	std::thread oManagerThread = std::thread(&ClManager::start, &oManager);
 	//wait for threads to finish
 	oManagerThread.join();
 	oReaderThread.join();

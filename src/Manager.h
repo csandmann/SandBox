@@ -11,22 +11,23 @@
 #include <thread>
 #include <chrono>
 
-#include "../PlayerPlugins/PlayerBase.h"
-#include "../ReaderPlugins/ReaderBase.h"
+#include "PlayerPlugins/PlayerBase.h"
+#include "ReaderPlugins/ReaderBase.h"
 #include "AudioDatabase.h"
 
 
 class ClManager
 {
 public:
-	ClManager(const std::shared_ptr<ClPlayerBase> &spPlayer, const std::shared_ptr<ClReaderBase> &spReader, const std::shared_ptr<ClAudioDatabase> &spAudioDb);
+	ClManager(const ClReaderBase *poReader, const ClAudioDatabase *poAudioDb);
 	~ClManager();
 	void start();
 	void stop();
+	void registerPlugin(const ClPlayerBase *poPlayer);
 private:
-	std::shared_ptr<ClPlayerBase> m_spPlayer;
-	std::shared_ptr<ClReaderBase> m_spReader;
-	std::shared_ptr<ClAudioDatabase> m_spAudioDb;
+	std::vector<ClPlayerBase*> m_vpPlayers;
+	ClReaderBase *m_poReader;
+	ClAudioDatabase *m_poAudioDb;
 
 	StReaderMessage m_stCurrentMsg;
 	bool m_bInterruptRequested;

@@ -23,7 +23,7 @@ const StReaderMessage ClReaderFile::read()
 		std::ifstream fin(m_oRFIDPath.string().c_str());
 		std::getline(fin, sNumber);
 		fin.close();
-		int nKey = std::atoi(sNumber.c_str());
+		int nKey = std::stoi(sNumber);
 		stMsg.nKey = nKey;
 		stMsg.eStatus = EReaderStatus::DETECTED;
 	}

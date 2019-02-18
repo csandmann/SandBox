@@ -8,10 +8,9 @@
 #include "Manager.h"
 #include <chrono>
 
-ClManager::ClManager(const std::shared_ptr<ClPlayerBase> &spPlayer, const std::shared_ptr<ClReaderBase> &spReader, const std::shared_ptr<ClAudioDatabase> &spAudioDb):
-m_spPlayer(spPlayer),
-m_spReader(spReader),
-m_spAudioDb(spAudioDb),
+ClManager::ClManagerClManager(const ClReaderBase *poReader, const ClAudioDatabase *poAudioDb) :
+m_poReader(poReader),
+m_poAudioDb(poAudioDb),
 m_bInterruptRequested(false),
 m_nWaitTime(500)
 {}
@@ -22,19 +21,26 @@ void ClManager::start()
 {
 	while (!m_bInterruptRequested)
 	{
-		StReaderMessage stMsg = m_spReader->getMessage();
+		StReaderMessage stMsg = m_poReader->getMessage();
 		if (playbackNeeded(stMsg))
 		{
-			StAudioItem stAudioItem = m_spAudioDb->audioItemFromKey(stMsg.nKey);
+			StAudioItem stAudioItem = m_poAudioDb->audioItemFromKey(stMsg.nKey);
 			if (stAudioItem.bIsInitialized)
 			{
-				m_spPlayer->play(stAudioItem);
+				for (auto poPlayer : m_vpPlayers)
+				{
+					if (poPlayer->getIdentifier() == stAudioItem.eSource)
+					{
+						poPlayer->play(stAudioItem.sAudioInfo.c_str());
+					}
+				}
+
 			}
 			m_stCurrentMsg = stMsg;
 		}
 		else if (playbackToStop(stMsg))
 		{
-			m_spPlayer->stop();
+			m_poPlayer->stop();
 			m_stCurrentMsg = stMsg;
 		}
 		//sleep
@@ -46,8 +52,8 @@ void ClManager::start()
 void ClManager::stop()
 {
 	m_bInterruptRequested = true;
-	m_spReader->stop();
-	m_spPlayer->stop();
+	m_poReader->stop();
+	m_poPlayer->stop();
 }
 
 bool ClManager::playbackNeeded(const StReaderMessage& stMsg)

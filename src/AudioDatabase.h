@@ -13,16 +13,10 @@
 
 namespace fs = std::experimental::filesystem;
 
-enum class EAudioSource
-{
-	SPOTIFY = 0,
-	LOCAL = 1
-};
-
 struct StAudioItem
 {
 	bool bIsInitialized;
-	EAudioSource eSource;
+	std::string sSource;
 	std::string sAudioInfo;
 };
 

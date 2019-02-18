@@ -8,7 +8,7 @@
 #include "PlayerSpotify.h"
 
 ClPlayerSpotify::ClPlayerSpotify() :
-m_oSpotifyAuth(uri("http://localhost:8080/auth"))
+m_oSpotifyAuth(uri("http://localhost:8080/spotify/auth"))
 {
 	m_oSpotifyAuth.open().wait();
 	m_oSpotifyAuth.support(methods::GET,  [this](http_request request){ this->handleSpotifyAuth(request); });
