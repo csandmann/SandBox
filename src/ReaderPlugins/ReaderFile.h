@@ -20,7 +20,7 @@ public:
 	ClReaderFile();
 	~ClReaderFile();
 private:
-	StReaderMessage read();
+	const StReaderMessage read() override;
 	const fs::path m_oRFIDPath;
 };
 

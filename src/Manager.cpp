@@ -8,7 +8,7 @@
 #include "Manager.h"
 #include <chrono>
 
-ClManager::ClManager(const std::shared_ptr<ClPlayer> &spPlayer, const std::shared_ptr<ClReaderBase> &spReader, const std::shared_ptr<ClAudioDatabase> &spAudioDb):
+ClManager::ClManager(const std::shared_ptr<ClPlayerBase> &spPlayer, const std::shared_ptr<ClReaderBase> &spReader, const std::shared_ptr<ClAudioDatabase> &spAudioDb):
 m_spPlayer(spPlayer),
 m_spReader(spReader),
 m_spAudioDb(spAudioDb),

@@ -23,9 +23,7 @@ public:
 	~ClWebserver();
 private:
 	http_listener m_oMainWebsite;
-	http_listener m_oSpotifyAuth;
 	void handleMainWebsite(http_request oRequest);
-	void handleSpotifyAuth(http_request oRequest);
 };
 
 #endif /* INCLUDE_WEBSERVER_H_ */

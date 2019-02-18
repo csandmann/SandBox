@@ -8,8 +8,8 @@
 #ifndef INCLUDE_READERBASE_H_
 #define INCLUDE_READERBASE_H_
 
-#include <future>
 #include <chrono>
+#include <thread>
 
 enum class EReaderStatus
 {
@@ -37,6 +37,33 @@ private:
 	StReaderMessage m_stReaderMessage;
 	bool m_bInterruptRequested;
 };
+
+ClReaderBase::ClReaderBase():
+m_bInterruptRequested(false),
+m_nReaderDelay(1000)
+{}
+
+ClReaderBase::~ClReaderBase() {}
+
+void ClReaderBase::start()
+{
+	while (!m_bInterruptRequested)
+	{
+		m_stReaderMessage = read();
+		std::this_thread::sleep_for(m_nReaderDelay);
+	}
+}
+
+void ClReaderBase::stop()
+{
+	m_bInterruptRequested = true;
+}
+
+StReaderMessage ClReaderBase::getMessage()
+{
+	return m_stReaderMessage;
+}
+
 
 
 #endif /* INCLUDE_READERBASE_H_ */

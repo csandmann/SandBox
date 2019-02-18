@@ -14,7 +14,7 @@ m_oRFIDPath("/home/check/test/rfid")
 
 ClReaderFile::~ClReaderFile() {}
 
-StReaderMessage ClReaderFile::read()
+const StReaderMessage ClReaderFile::read()
 {
 	StReaderMessage stMsg;
 	if (fs::exists(m_oRFIDPath))
