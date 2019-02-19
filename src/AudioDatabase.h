@@ -11,7 +11,6 @@
 #include <map>
 #include <thread>
 #include "experimental/filesystem"
-#include <spdlog/spdlog.h>
 
 namespace fs = std::experimental::filesystem;
 
@@ -33,7 +32,6 @@ private:
 	bool initialize();
 	StAudioItem audioItemFromFile(const fs::path &oFilePath);
 	std::map<int, StAudioItem> m_oAudioMap;
-	std::shared_ptr<spdlog::logger> m_spLogger;
 };
 
 

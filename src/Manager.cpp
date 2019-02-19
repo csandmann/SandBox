@@ -44,8 +44,9 @@ void ClManager::start()
 		{
 			if (m_poActivePlayer != nullptr){
 				m_poActivePlayer->stop();
+				m_poActivePlayer = nullptr;
 			}
-			m_stCurrentMsg = stMsg;
+			m_stCurrentMsg = StReaderMessage{stMsg.eStatus, -1};
 		}
 		//sleep
 		std::this_thread::sleep_for(m_nWaitTime);
@@ -65,6 +66,11 @@ void ClManager::stop()
 bool ClManager::playbackNeeded(const StReaderMessage& stMsg)
 {
 	return (stMsg.eStatus == EReaderStatus::DETECTED && stMsg.nKey != m_stCurrentMsg.nKey);
+}
+
+void ClManager::registerPlayer(ClPlayerBase *const poPlayer)
+{
+	m_vpPlayers.push_back(poPlayer);
 }
 
 bool ClManager::playbackToStop(const StReaderMessage& stMsg)

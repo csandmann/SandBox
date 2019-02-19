@@ -23,7 +23,7 @@ public:
 	~ClManager();
 	void start();
 	void stop();
-	void registerPlugin(const ClPlayerBase *poPlayer);
+	void registerPlayer(ClPlayerBase *const poPlayer);
 private:
 	std::vector<ClPlayerBase*> m_vpPlayers;
 	ClReaderBase *const m_poReader;

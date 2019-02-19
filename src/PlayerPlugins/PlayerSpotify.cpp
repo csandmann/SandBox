@@ -25,13 +25,19 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 	return true;
 }
 
-void ClPlayerSpotify::play(const char* pcMessage) {
+void ClPlayerSpotify::play(const char* pcMessage)
+{
+	std::cout << "Spotify: Playing" << pcMessage <<  std::endl;
 }
 
-void ClPlayerSpotify::stop() {
+void ClPlayerSpotify::stop()
+{
+	std::cout << "Spotify stopped" <<  std::endl;
 }
 
-void ClPlayerSpotify::pause() {
+void ClPlayerSpotify::pause()
+{
+	std::cout << "Spotify paused" <<  std::endl;
 }
 
 void ClPlayerSpotify::increaseVolume() {

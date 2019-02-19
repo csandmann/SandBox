@@ -7,8 +7,7 @@
 #include "AudioDatabase.h"
 #include <fstream>
 
-ClAudioDatabase::ClAudioDatabase() :
-m_spLogger(spdlog::get("SandBox"))
+ClAudioDatabase::ClAudioDatabase()
 {
 	initialize();
 }
@@ -74,7 +73,6 @@ StAudioItem ClAudioDatabase::audioItemFromFile(const fs::path &oPath)
 	}
 	catch (std::exception &e)
 	{
-		m_spLogger->warn(std::string("ClAudioDb: Could not read ") + oPath.string());
 		stAudioItem.bIsInitialized = false;
 	}
 	return stAudioItem;
