@@ -8,10 +8,6 @@
 
 #include <iostream>
 #include <thread>
-//logging
-#include <spdlog/spdlog.h>
-#include <spdlog/async.h>
-#include <spdlog/sinks/basic_file_sink.h>
 //plugins
 #include "PlayerPlugins/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderFile.h"
@@ -20,15 +16,14 @@
 #include "Manager.h"
 #include "Webserver.h"
 
-auto oLogger = spdlog::basic_logger_mt<spdlog::async_factory>("SandBox", "SandBox.log");
-
 int main() {
 	//initialize components
 	ClWebserver oWebserver;
 	ClAudioDatabase oAudioDb;
-	ClPlayerSpotify oPlayer;
+	ClPlayerSpotify oSpotifyPlayer;
 	ClReaderFile oReader;
 	ClManager oManager(&oReader, &oAudioDb);
+	oManager.registerPlayer(&oSpotifyPlayer);
 	//start threads
 	std::thread oReaderThread = std::thread(&ClReaderFile::start, &oReader);
 	std::thread oManagerThread = std::thread(&ClManager::start, &oManager);
