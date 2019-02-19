@@ -26,44 +26,30 @@ struct StReaderMessage
 class ClReaderBase
 {
 public:
-	ClReaderBase();
-	virtual ~ClReaderBase() = 0;
-	void start();
-	void stop();
-	StReaderMessage getMessage();
+	ClReaderBase():m_nReaderDelay(1000),m_bInterruptRequested(false){};
+	virtual ~ClReaderBase(){};
+	void start()
+	{
+		while (!m_bInterruptRequested)
+		{
+			m_stReaderMessage = read();
+			std::this_thread::sleep_for(m_nReaderDelay);
+		}
+	};
+
+	void stop() {
+		m_bInterruptRequested = true;
+	};
+
+	StReaderMessage getMessage() {
+		return m_stReaderMessage;
+	};
+
 private:
 	virtual const StReaderMessage read() = 0;
 	std::chrono::milliseconds m_nReaderDelay;
 	StReaderMessage m_stReaderMessage;
 	bool m_bInterruptRequested;
 };
-
-ClReaderBase::ClReaderBase():
-m_bInterruptRequested(false),
-m_nReaderDelay(1000)
-{}
-
-ClReaderBase::~ClReaderBase() {}
-
-void ClReaderBase::start()
-{
-	while (!m_bInterruptRequested)
-	{
-		m_stReaderMessage = read();
-		std::this_thread::sleep_for(m_nReaderDelay);
-	}
-}
-
-void ClReaderBase::stop()
-{
-	m_bInterruptRequested = true;
-}
-
-StReaderMessage ClReaderBase::getMessage()
-{
-	return m_stReaderMessage;
-}
-
-
 
 #endif /* INCLUDE_READERBASE_H_ */

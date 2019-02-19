@@ -8,11 +8,12 @@
 #include "Manager.h"
 #include <chrono>
 
-ClManager::ClManagerClManager(const ClReaderBase *poReader, const ClAudioDatabase *poAudioDb) :
+ClManager::ClManager(ClReaderBase *const poReader, ClAudioDatabase *const poAudioDb) :
 m_poReader(poReader),
 m_poAudioDb(poAudioDb),
 m_bInterruptRequested(false),
-m_nWaitTime(500)
+m_nWaitTime(500),
+m_poActivePlayer(nullptr)
 {}
 
 ClManager::~ClManager() {}
@@ -29,9 +30,10 @@ void ClManager::start()
 			{
 				for (auto poPlayer : m_vpPlayers)
 				{
-					if (poPlayer->getIdentifier() == stAudioItem.eSource)
+					if (poPlayer->getIdentifier() == stAudioItem.sSource)
 					{
 						poPlayer->play(stAudioItem.sAudioInfo.c_str());
+						m_poActivePlayer = poPlayer;
 					}
 				}
 
@@ -40,7 +42,9 @@ void ClManager::start()
 		}
 		else if (playbackToStop(stMsg))
 		{
-			m_poPlayer->stop();
+			if (m_poActivePlayer != nullptr){
+				m_poActivePlayer->stop();
+			}
 			m_stCurrentMsg = stMsg;
 		}
 		//sleep
@@ -53,7 +57,9 @@ void ClManager::stop()
 {
 	m_bInterruptRequested = true;
 	m_poReader->stop();
-	m_poPlayer->stop();
+	if (m_poActivePlayer != nullptr) {
+		m_poActivePlayer->stop();
+	}
 }
 
 bool ClManager::playbackNeeded(const StReaderMessage& stMsg)

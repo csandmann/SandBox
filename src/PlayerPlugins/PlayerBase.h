@@ -14,8 +14,7 @@
 class ClPlayerBase
 {
 public:
-	ClPlayerBase();
-	virtual ~ClPlayerBase();
+	virtual ~ClPlayerBase(){};
 	virtual const std::string getIdentifier() const;
 	virtual const bool restEndpointActive() const;
 	virtual void play(const char* pcMessage);

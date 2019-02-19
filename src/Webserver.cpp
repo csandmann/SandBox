@@ -7,8 +7,7 @@
  */
 
 ClWebserver::ClWebserver():
-m_oMainWebsite(uri("http://localhost:8080")),
-m_oLogger(spdlog::get("SandBox"))
+m_oMainWebsite(uri("http://localhost:8080"))
 {
 	m_oMainWebsite.open().wait();
 	m_oMainWebsite.support(methods::GET,  [this](http_request request){ this->handleMainWebsite(request); });

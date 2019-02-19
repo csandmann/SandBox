@@ -7,11 +7,11 @@
 
 #include "PlayerSpotify.h"
 
-ClPlayerSpotify::ClPlayerSpotify() :
-m_oSpotifyAuth(uri("http://localhost:8080/spotify/auth"))
+ClPlayerSpotify::ClPlayerSpotify()
+//m_oSpotifyAuth(uri("http://localhost:8080/spotify/auth"))
 {
-	m_oSpotifyAuth.open().wait();
-	m_oSpotifyAuth.support(methods::GET,  [this](http_request request){ this->handleSpotifyAuth(request); });
+	//m_oSpotifyAuth.open().wait();
+	//m_oSpotifyAuth.support(methods::GET,  [this](http_request request){ this->handleSpotifyAuth(request); });
 }
 
 ClPlayerSpotify::~ClPlayerSpotify() {
@@ -40,11 +40,11 @@ void ClPlayerSpotify::increaseVolume() {
 void ClPlayerSpotify::decreaseVolume() {
 }
 
-void ClPlayerSpotify::handleSpotifyAuth(http_request oRequest)
-{
-	std::cout << oRequest.request_uri().to_string().c_str() << std::endl;
-	http_response oResponse(status_codes::OK);
-	oResponse.headers().add(U("Content-Type"), U("text/html"));
-	oResponse.set_body("<html><head></head><body>Success!</body></html>");
-	oRequest.reply(oResponse);
-}
+//void ClPlayerSpotify::handleSpotifyAuth(http_request oRequest)
+//{
+//	std::cout << oRequest.request_uri().to_string().c_str() << std::endl;
+//	http_response oResponse(status_codes::OK);
+//	oResponse.headers().add(U("Content-Type"), U("text/html"));
+//	oResponse.set_body("<html><head></head><body>Success!</body></html>");
+//	oRequest.reply(oResponse);
+//}

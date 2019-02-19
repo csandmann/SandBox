@@ -26,7 +26,7 @@ public:
 private:
 	http_listener m_oMainWebsite;
 	void handleMainWebsite(http_request oRequest);
-	std::shared_ptr<spdlog::logger> m_oLogger;
+	//std::shared_ptr<spdlog::logger> m_oLogger;
 };
 
 #endif /* INCLUDE_WEBSERVER_H_ */

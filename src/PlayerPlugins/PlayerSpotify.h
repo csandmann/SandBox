@@ -9,12 +9,12 @@
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 
 #include "PlayerBase.h"
-#include <cpprest/http_listener.h>
-#include <cpprest/json.h>
+//#include <cpprest/http_listener.h>
+//#include <cpprest/json.h>
 
-using namespace web;
-using namespace web::http;
-using namespace web::http::experimental::listener;
+//using namespace web;
+//using namespace web::http;
+//using namespace web::http::experimental::listener;
 
 class ClPlayerSpotify : public ClPlayerBase
 {
@@ -29,8 +29,8 @@ public:
 	void increaseVolume() override;
 	void decreaseVolume() override;
 private:
-	void handleSpotifyAuth(http_request oRequest);
-	http_listener m_oSpotifyAuth;
+	//void handleSpotifyAuth(http_request oRequest);
+	//http_listener m_oSpotifyAuth;
 };
 
 

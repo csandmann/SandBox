@@ -49,7 +49,7 @@ bool ClAudioDatabase::initialize()
 			 std::printf("ClAudioDatabase::initialize(): Could not parse %s", oEntry.path().c_str());
 			 continue;
 		 }
-		 int nEntry = std::atoi(oEntry.path().filename().string().c_str());
+		 int nEntry = std::stoi(oEntry.path().filename().string());
 		 m_oAudioMap[nEntry] = stAudioItem;
 	 }
 	 return true;
