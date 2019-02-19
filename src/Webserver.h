@@ -11,7 +11,6 @@
 
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
-#include <spdlog/spdlog.h>
 
 using namespace web;
 using namespace web::http;
@@ -26,7 +25,6 @@ public:
 private:
 	http_listener m_oMainWebsite;
 	void handleMainWebsite(http_request oRequest);
-	//std::shared_ptr<spdlog::logger> m_oLogger;
 };
 
 #endif /* INCLUDE_WEBSERVER_H_ */

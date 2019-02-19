@@ -15,13 +15,13 @@ class ClPlayerBase
 {
 public:
 	virtual ~ClPlayerBase(){};
-	virtual const std::string getIdentifier() const;
-	virtual const bool restEndpointActive() const;
-	virtual void play(const char* pcMessage);
-	virtual void stop();
-	virtual void pause();
-	virtual void increaseVolume();
-	virtual void decreaseVolume();
+	virtual const std::string getIdentifier() const = 0;
+	virtual const bool restEndpointActive() const = 0;
+	virtual void play(const char* pcMessage) = 0;
+	virtual void stop() = 0;
+	virtual void pause() = 0;
+	virtual void increaseVolume() = 0;
+	virtual void decreaseVolume() = 0;
 };
 
 #endif /* PLAYERBASE_H_ */

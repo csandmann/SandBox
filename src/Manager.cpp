@@ -11,12 +11,12 @@
 ClManager::ClManager(ClReaderBase *const poReader, ClAudioDatabase *const poAudioDb) :
 m_poReader(poReader),
 m_poAudioDb(poAudioDb),
+m_poActivePlayer(nullptr),
 m_bInterruptRequested(false),
-m_nWaitTime(500),
-m_poActivePlayer(nullptr)
+m_nWaitTime(500)
 {}
 
-ClManager::~ClManager() {}
+ClManager::~ClManager(){}
 
 void ClManager::start()
 {
