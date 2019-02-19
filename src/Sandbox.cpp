@@ -15,6 +15,7 @@
 #include "AudioDatabase.h"
 #include "Manager.h"
 #include "Webserver.h"
+#include "Configuration.h"
 
 int main() {
 	//initialize components
@@ -22,6 +23,8 @@ int main() {
 	ClAudioDatabase oAudioDb;
 	ClPlayerSpotify oSpotifyPlayer;
 	ClReaderFile oReader;
+	ClConfiguration oConfig;
+	//create manager
 	ClManager oManager(&oReader, &oAudioDb);
 	oManager.registerPlayer(&oSpotifyPlayer);
 	//start threads
