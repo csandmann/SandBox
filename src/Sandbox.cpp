@@ -1,6 +1,6 @@
 //============================================================================
 // Name        : Sandbox.cpp
-// Author      : check
+// Author      : Constantin Sandmann
 // Version     :
 // Copyright   : (c) check
 // Description : Main Application
