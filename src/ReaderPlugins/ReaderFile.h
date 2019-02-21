@@ -9,6 +9,7 @@
 #define INCLUDE_READERFILE_H_
 
 #include "ReaderBase.h"
+#include "../Configuration.h"
 #include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
@@ -17,7 +18,7 @@ namespace fs = std::experimental::filesystem;
 class ClReaderFile : public ClReaderBase
 {
 public:
-	ClReaderFile();
+	ClReaderFile(const ClConfiguration &oConfig);
 	~ClReaderFile();
 private:
 	const StReaderMessage read() override;

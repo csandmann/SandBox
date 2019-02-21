@@ -19,11 +19,11 @@
 
 int main() {
 	//initialize components
-	ClWebserver oWebserver;
-	ClAudioDatabase oAudioDb;
-	ClPlayerSpotify oSpotifyPlayer;
-	ClReaderFile oReader;
 	ClConfiguration oConfig;
+	ClWebserver oWebserver(oConfig);
+	ClAudioDatabase oAudioDb(oConfig);
+	ClPlayerSpotify oSpotifyPlayer(oConfig);
+	ClReaderFile oReader(oConfig);
 	//create manager
 	ClManager oManager(&oReader, &oAudioDb);
 	oManager.registerPlayer(&oSpotifyPlayer);

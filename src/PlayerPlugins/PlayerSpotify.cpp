@@ -7,7 +7,8 @@
 
 #include "PlayerSpotify.h"
 
-ClPlayerSpotify::ClPlayerSpotify():
+ClPlayerSpotify::ClPlayerSpotify(const ClConfiguration &oConfig):
+ClPlayerBase(oConfig),
 m_oSpotifyAuth(uri("http://localhost:8080/spotify/auth"))
 {
 	m_oSpotifyAuth.open().wait();
@@ -49,6 +50,7 @@ void ClPlayerSpotify::decreaseVolume() {
 void ClPlayerSpotify::handleSpotifyAuth(http_request oRequest)
 {
 	std::cout << oRequest.request_uri().to_string().c_str() << std::endl;
+	//send OK response
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
 	oResponse.set_body("<html><head></head><body>Success!</body></html>");

@@ -5,10 +5,12 @@
  *      Author: check
  */
 #include "ReaderFile.h"
+
 #include <fstream>
 #include <string>
 
-ClReaderFile::ClReaderFile():
+ClReaderFile::ClReaderFile(const ClConfiguration &oConfig):
+ClReaderBase(oConfig),
 m_oRFIDPath("/home/check/test/rfid")
 {}
 

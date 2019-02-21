@@ -9,6 +9,7 @@
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 
 #include "PlayerBase.h"
+#include "../Configuration.h"
 //cpprest
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -19,7 +20,7 @@ using namespace web::http::experimental::listener;
 class ClPlayerSpotify : public ClPlayerBase
 {
 public:
-	ClPlayerSpotify();
+	ClPlayerSpotify(const ClConfiguration &oConfig);
 	~ClPlayerSpotify() override;
 	const std::string getIdentifier() const override;
 	const bool restEndpointActive() const override;

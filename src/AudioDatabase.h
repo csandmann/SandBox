@@ -12,6 +12,8 @@
 #include <thread>
 #include "experimental/filesystem"
 
+#include "Configuration.h"
+
 namespace fs = std::experimental::filesystem;
 
 struct StAudioItem
@@ -24,7 +26,7 @@ struct StAudioItem
 class ClAudioDatabase
 {
 public:
-	ClAudioDatabase();
+	ClAudioDatabase(const ClConfiguration &oConfig);
 	~ClAudioDatabase();
 	StAudioItem audioItemFromKey(const int nKey);
 	bool reinitialize();
@@ -32,6 +34,7 @@ private:
 	bool initialize();
 	StAudioItem audioItemFromFile(const fs::path &oFilePath);
 	std::map<int, StAudioItem> m_oAudioMap;
+	const ClConfiguration &m_oConfiguration;
 };
 
 
