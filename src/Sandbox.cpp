@@ -16,10 +16,12 @@
 #include "Manager.h"
 #include "Webserver.h"
 #include "Configuration.h"
+#include "Logger.h"
 
 int main() {
 	//initialize components
 	ClConfiguration oConfig;
+	ClLogger::init(&oConfig);
 	ClWebserver oWebserver(oConfig);
 	ClAudioDatabase oAudioDb(oConfig);
 	ClPlayerSpotify oSpotifyPlayer(oConfig);
