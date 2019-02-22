@@ -6,9 +6,9 @@
  *      Author: check
  */
 
-ClWebserver::ClWebserver(const ClConfiguration &oConfig):
+ClWebserver::ClWebserver():
 m_oMainWebsite(uri("http://localhost:8080")),
-m_oConfiguration(oConfig)
+m_oLogger(ClLogger{"Webserver"})
 {
 	m_oMainWebsite.open().wait();
 	m_oMainWebsite.support(methods::GET,  [this](http_request request){ this->handleMainWebsite(request); });

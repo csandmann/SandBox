@@ -9,7 +9,7 @@
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 
 #include "PlayerBase.h"
-#include "../Configuration.h"
+#include "../Logging/Logger.h"
 //cpprest
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -17,10 +17,16 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
 
+struct StSpotifyConfig : StPlayerConfig
+{
+	std::string sClientId;
+	std::string sClientSecret;
+};
+
 class ClPlayerSpotify : public ClPlayerBase
 {
 public:
-	ClPlayerSpotify(const ClConfiguration &oConfig);
+	ClPlayerSpotify(const StSpotifyConfig *poConfig);
 	~ClPlayerSpotify() override;
 	const std::string getIdentifier() const override;
 	const bool restEndpointActive() const override;
@@ -32,6 +38,7 @@ public:
 private:
 	http_listener m_oSpotifyAuth;
 	void handleSpotifyAuth(http_request oRequest);
+	ClLogger m_oLogger;
 };
 
 

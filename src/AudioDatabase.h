@@ -12,7 +12,7 @@
 #include <thread>
 #include "experimental/filesystem"
 
-#include "Configuration.h"
+#include "./Logging/Logger.h"
 
 namespace fs = std::experimental::filesystem;
 
@@ -26,7 +26,7 @@ struct StAudioItem
 class ClAudioDatabase
 {
 public:
-	ClAudioDatabase(const ClConfiguration &oConfig);
+	ClAudioDatabase();
 	~ClAudioDatabase();
 	StAudioItem audioItemFromKey(const int nKey);
 	bool reinitialize();
@@ -34,7 +34,7 @@ private:
 	bool initialize();
 	StAudioItem audioItemFromFile(const fs::path &oFilePath);
 	std::map<int, StAudioItem> m_oAudioMap;
-	const ClConfiguration &m_oConfiguration;
+	ClLogger m_oLogger;
 };
 
 

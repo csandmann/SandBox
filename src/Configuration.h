@@ -11,14 +11,25 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
+#include "./Logging/BaseLogger.h"
+#include "./PlayerPlugins/PlayerSpotify.h"
+#include "./ReaderPlugins/ReaderFile.h"
+
 class ClConfiguration
 {
 public:
 	ClConfiguration();
-	template<typename T> T getValue(const char* sProperty) const;
+	StLoggerConfig* getLoggerConfig();
+	StSpotifyConfig* getSpotifyConfig();
+	StReaderConfig* getReaderConfig();
 private:
+	template<typename T> T getValue(const char* sProperty) const;
 	std::string m_sConfigFilePath;
 	std::unique_ptr<boost::property_tree::ptree> m_spPropertyTree;
+
+	StLoggerConfig m_stLoggerConfig;
+	StSpotifyConfig m_stSpotifyConfig;
+	StReaderConfig m_stReaderConfig;
 };
 
 

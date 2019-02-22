@@ -7,8 +7,8 @@
 #include "AudioDatabase.h"
 #include <fstream>
 
-ClAudioDatabase::ClAudioDatabase(const ClConfiguration &oConfig):
-m_oConfiguration(oConfig)
+ClAudioDatabase::ClAudioDatabase() :
+m_oLogger(ClLogger("AudioDb"))
 {
 	initialize();
 }

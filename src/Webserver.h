@@ -11,7 +11,7 @@
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
 
-#include "Configuration.h"
+#include "./Logging/Logger.h"
 
 using namespace web;
 using namespace web::http;
@@ -21,12 +21,12 @@ using namespace web::http::experimental::listener;
 class ClWebserver
 {
 public:
-	ClWebserver(const ClConfiguration &oConfig);
+	ClWebserver();
 	~ClWebserver();
 private:
 	http_listener m_oMainWebsite;
 	void handleMainWebsite(http_request oRequest);
-	const ClConfiguration &m_oConfiguration;
+	ClLogger m_oLogger;
 };
 
 #endif /* INCLUDE_WEBSERVER_H_ */

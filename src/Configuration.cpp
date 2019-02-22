@@ -28,5 +28,25 @@ ClConfiguration::ClConfiguration() :
 
 }
 
+StLoggerConfig* ClConfiguration::getLoggerConfig()
+{
+	std::string sLogLevel = getValue<std::string>("Logging.logLevel");
+	ELogLevel eLogLevel = ClBaseLogger::string2LogLevel(sLogLevel);
+	std::string sLogFile = getValue<std::string>("Logging.logLevel");
+	m_stLoggerConfig = StLoggerConfig{eLogLevel, sLogFile};
+	return &m_stLoggerConfig;
+}
 
+StSpotifyConfig* ClConfiguration::getSpotifyConfig()
+{
+	std::string sClientId = getValue<std::string>("Spotify.clientId");
+	std::string sClientSecret = getValue<std::string>("Spotify.clientSecret");
+	m_stSpotifyConfig.sClientId = sClientId;
+	m_stSpotifyConfig.sClientSecret = sClientSecret;
+	return &m_stSpotifyConfig;
+}
 
+StReaderConfig* ClConfiguration::getReaderConfig()
+{
+	return &m_stReaderConfig;
+}

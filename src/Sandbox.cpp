@@ -16,16 +16,17 @@
 #include "Manager.h"
 #include "Webserver.h"
 #include "Configuration.h"
-#include "Logger.h"
+#include "./Logging/BaseLogger.h"
 
 int main() {
-	//initialize components
+	//initialize config and logging
 	ClConfiguration oConfig;
-	ClLogger::init(&oConfig);
-	ClWebserver oWebserver(oConfig);
-	ClAudioDatabase oAudioDb(oConfig);
-	ClPlayerSpotify oSpotifyPlayer(oConfig);
-	ClReaderFile oReader(oConfig);
+	ClBaseLogger::init(oConfig.getLoggerConfig());
+	//initialize components
+	ClWebserver oWebserver;
+	ClAudioDatabase oAudioDb;
+	ClPlayerSpotify oSpotifyPlayer(oConfig.getSpotifyConfig());
+	ClReaderFile oReader(oConfig.getReaderConfig());
 	//create manager
 	ClManager oManager(&oReader, &oAudioDb);
 	oManager.registerPlayer(&oSpotifyPlayer);

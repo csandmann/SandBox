@@ -10,12 +10,14 @@
 
 #include <string>
 #include "../AudioDatabase.h"
-#include "../Configuration.h"
+
+struct StPlayerConfig{};
+
 
 class ClPlayerBase
 {
 public:
-	ClPlayerBase(const ClConfiguration &oConfig);
+	ClPlayerBase(const StPlayerConfig *poPlayerConfig);
 	virtual ~ClPlayerBase(){};
 	virtual const std::string getIdentifier() const = 0;
 	virtual const bool restEndpointActive() const = 0;
@@ -25,12 +27,12 @@ public:
 	virtual void increaseVolume() = 0;
 	virtual void decreaseVolume() = 0;
 protected:
-	const ClConfiguration &m_oConfiguration;
+	const StPlayerConfig *m_poConfig;
 };
 
 inline
-ClPlayerBase::ClPlayerBase(const ClConfiguration &oConfig) :
-m_oConfiguration(oConfig)
+ClPlayerBase::ClPlayerBase(const StPlayerConfig *poPlayerConfig) :
+m_poConfig(poPlayerConfig)
 {}
 
 #endif /* PLAYERBASE_H_ */

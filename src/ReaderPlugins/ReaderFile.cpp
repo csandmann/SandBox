@@ -9,8 +9,8 @@
 #include <fstream>
 #include <string>
 
-ClReaderFile::ClReaderFile(const ClConfiguration &oConfig):
-ClReaderBase(oConfig),
+ClReaderFile::ClReaderFile(const StReaderConfig *poReaderConfig):
+ClReaderBase(poReaderConfig),
 m_oRFIDPath("/home/check/test/rfid")
 {}
 
