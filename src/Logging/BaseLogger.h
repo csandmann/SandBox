@@ -31,7 +31,7 @@ class ClBaseLogger
 {
 public:
 	ClBaseLogger(const StLoggerConfig *const poLoggerConfig);
-	static ClBaseLogger* init(const StLoggerConfig *const poLoggerConfig);
+	static ClBaseLogger* init(const StLoggerConfig oLoggerConfig);
 	static ClBaseLogger* get();
 	static ELogLevel string2LogLevel(const std::string &sLogLevel);
 
@@ -48,7 +48,7 @@ private:
 	std::string formatLine(const std::string &sMessage, const std::string &sLogLevel, const std::string &sLoggerName = "");
 	void writeLine(const std::string &sLine);
 
-	const StLoggerConfig *m_poConfig;
+	const StLoggerConfig m_oConfig;
 	std::mutex m_oWriteMutex;
 };
 

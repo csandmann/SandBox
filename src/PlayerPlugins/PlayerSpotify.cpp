@@ -7,10 +7,11 @@
 
 #include "PlayerSpotify.h"
 
-ClPlayerSpotify::ClPlayerSpotify(const StSpotifyConfig *poConfig):
-ClPlayerBase(poConfig),
+ClPlayerSpotify::ClPlayerSpotify(const StSpotifyConfig oConfig):
+ClPlayerBase(&m_oConfig),
 m_oSpotifyAuth(uri("http://localhost:8080/spotify/auth")),
-m_oLogger(ClLogger("Spotify"))
+m_oLogger(ClLogger("Spotify")),
+m_oConfig(oConfig)
 {
 	m_oSpotifyAuth.open().wait();
 	m_oSpotifyAuth.support(methods::GET,  [this](http_request request){ this->handleSpotifyAuth(request); });
@@ -29,23 +30,27 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 
 void ClPlayerSpotify::play(const char* pcMessage)
 {
-	std::cout << "Spotify: Playing" << pcMessage <<  std::endl;
+	m_oLogger.info(std::string("Playing ") + std::string(pcMessage));
 }
 
 void ClPlayerSpotify::stop()
 {
-	std::cout << "Spotify stopped" <<  std::endl;
+	m_oLogger.info("Stopped");
 }
 
 void ClPlayerSpotify::pause()
 {
-	std::cout << "Spotify paused" <<  std::endl;
+	m_oLogger.info("Paused");
 }
 
-void ClPlayerSpotify::increaseVolume() {
+void ClPlayerSpotify::increaseVolume()
+{
+	m_oLogger.info("Increasing volume");
 }
 
-void ClPlayerSpotify::decreaseVolume() {
+void ClPlayerSpotify::decreaseVolume()
+{
+	m_oLogger.info("Decreasing volume");
 }
 
 void ClPlayerSpotify::handleSpotifyAuth(http_request oRequest)

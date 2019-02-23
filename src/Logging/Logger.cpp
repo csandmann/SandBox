@@ -10,11 +10,9 @@
 #include <ctime>
 #include <sstream>
 
-ClLogger::ClLogger(const std::string &sLoggerName, const StLoggerConfig *poConfig/*=nullptr*/) :
+ClLogger::ClLogger(const std::string &sLoggerName) :
 m_sLoggerName(sLoggerName)
-{
-	ClBaseLogger::init(poConfig);
-}
+{}
 
 void ClLogger::info(const std::string& sMessage)
 {

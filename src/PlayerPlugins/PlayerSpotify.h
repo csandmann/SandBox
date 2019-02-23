@@ -21,12 +21,14 @@ struct StSpotifyConfig : StPlayerConfig
 {
 	std::string sClientId;
 	std::string sClientSecret;
+	std::string sHostname;
+	unsigned int nPort;
 };
 
 class ClPlayerSpotify : public ClPlayerBase
 {
 public:
-	ClPlayerSpotify(const StSpotifyConfig *poConfig);
+	ClPlayerSpotify(const StSpotifyConfig oConfig);
 	~ClPlayerSpotify() override;
 	const std::string getIdentifier() const override;
 	const bool restEndpointActive() const override;
@@ -39,6 +41,7 @@ private:
 	http_listener m_oSpotifyAuth;
 	void handleSpotifyAuth(http_request oRequest);
 	ClLogger m_oLogger;
+	const StSpotifyConfig m_oConfig;
 };
 
 

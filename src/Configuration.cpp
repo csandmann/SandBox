@@ -8,10 +8,20 @@
 #include "Configuration.h"
 #include "../Resources/generated_config.h"
 
+#include <chrono>
 #include <cstdio>
 
 ClConfiguration::ClConfiguration() :
 	m_sConfigFilePath("config.ini")
+{
+	initializeLogFile();
+	setupLoggerConfig();
+	setupSpotifyConfig();
+	setupReaderConfig();
+	setupWebserverConfig();
+}
+
+void ClConfiguration::initializeLogFile()
 {
 	m_spPropertyTree = std::make_unique<boost::property_tree::ptree>();
 	try
@@ -25,28 +35,62 @@ ClConfiguration::ClConfiguration() :
 		std::fclose(pConfig);
 		boost::property_tree::ini_parser::read_ini(m_sConfigFilePath.c_str(), *m_spPropertyTree.get());
 	}
-
 }
 
-StLoggerConfig* ClConfiguration::getLoggerConfig()
+void ClConfiguration::setupLoggerConfig()
 {
-	std::string sLogLevel = getValue<std::string>("Logging.logLevel");
+	std::string sLogLevel = getValue<std::string>("Logging.loglevel");
 	ELogLevel eLogLevel = ClBaseLogger::string2LogLevel(sLogLevel);
-	std::string sLogFile = getValue<std::string>("Logging.logLevel");
-	m_stLoggerConfig = StLoggerConfig{eLogLevel, sLogFile};
-	return &m_stLoggerConfig;
+	std::string sLogFile = getValue<std::string>("Logging.logfile");
+	m_oLoggerConfig = StLoggerConfig{eLogLevel, sLogFile};
 }
 
-StSpotifyConfig* ClConfiguration::getSpotifyConfig()
+void ClConfiguration::setupSpotifyConfig()
 {
 	std::string sClientId = getValue<std::string>("Spotify.clientId");
 	std::string sClientSecret = getValue<std::string>("Spotify.clientSecret");
-	m_stSpotifyConfig.sClientId = sClientId;
-	m_stSpotifyConfig.sClientSecret = sClientSecret;
-	return &m_stSpotifyConfig;
+	std::string sHostname = getValue<std::string>("SandBox.hostname");
+	unsigned int nPort = getValue<unsigned int>("SandBox.port");
+
+	m_oSpotifyConfig.sClientId = sClientId;
+	m_oSpotifyConfig.sClientSecret = sClientSecret;
+	m_oSpotifyConfig.nPort = nPort;
+	m_oSpotifyConfig.sHostname = sHostname;
 }
 
-StReaderConfig* ClConfiguration::getReaderConfig()
+void ClConfiguration::setupWebserverConfig()
 {
-	return &m_stReaderConfig;
+	std::string sHostname = getValue<std::string>("SandBox.hostname");
+	unsigned int nPort = getValue<unsigned int>("SandBox.port");
+
+	m_oWebserverConfig.nPort = nPort;
+	m_oWebserverConfig.sHostname = sHostname;
+}
+
+
+void ClConfiguration::setupReaderConfig()
+{
+	int nReadInterval = getValue<int>("Reader.readIntervalInMs");
+	m_oReaderConfig.nReadInterval = std::chrono::milliseconds(nReadInterval);
+}
+
+StLoggerConfig ClConfiguration::getLoggerConfig()
+{
+	return m_oLoggerConfig;
+}
+
+StSpotifyConfig ClConfiguration::getSpotifyConfig()
+{
+	return m_oSpotifyConfig;
+}
+
+StWebserverConfig ClConfiguration::getWebserverConfig()
+{
+	return m_oWebserverConfig;
+}
+
+
+StReaderConfig ClConfiguration::getReaderConfig()
+{
+	return m_oReaderConfig;
 }

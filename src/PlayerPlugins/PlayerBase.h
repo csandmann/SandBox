@@ -27,12 +27,12 @@ public:
 	virtual void increaseVolume() = 0;
 	virtual void decreaseVolume() = 0;
 protected:
-	const StPlayerConfig *m_poConfig;
+	const StPlayerConfig *m_poBaseConfig;
 };
 
 inline
 ClPlayerBase::ClPlayerBase(const StPlayerConfig *poPlayerConfig) :
-m_poConfig(poPlayerConfig)
+m_poBaseConfig(poPlayerConfig)
 {}
 
 #endif /* PLAYERBASE_H_ */

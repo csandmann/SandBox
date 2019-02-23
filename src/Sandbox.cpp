@@ -23,7 +23,7 @@ int main() {
 	ClConfiguration oConfig;
 	ClBaseLogger::init(oConfig.getLoggerConfig());
 	//initialize components
-	ClWebserver oWebserver;
+	ClWebserver oWebserver(oConfig.getWebserverConfig());
 	ClAudioDatabase oAudioDb;
 	ClPlayerSpotify oSpotifyPlayer(oConfig.getSpotifyConfig());
 	ClReaderFile oReader(oConfig.getReaderConfig());

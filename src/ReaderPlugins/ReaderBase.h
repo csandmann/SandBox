@@ -25,7 +25,7 @@ struct StReaderMessage
 
 struct StReaderConfig
 {
-	std::chrono::milliseconds nReaderDelay;
+	std::chrono::milliseconds nReadInterval;
 };
 
 class ClReaderBase
@@ -39,7 +39,7 @@ public:
 protected:
 	virtual const StReaderMessage read() = 0;
 	StReaderMessage m_stReaderMessage;
-	const StReaderConfig *m_poConfig;
+	const StReaderConfig *m_poBaseConfig;
 	bool m_bInterruptRequested;
 };
 
@@ -62,13 +62,13 @@ void ClReaderBase::start()
 	while (!m_bInterruptRequested)
 	{
 		m_stReaderMessage = read();
-		std::this_thread::sleep_for(m_poConfig->nReaderDelay);
+		std::this_thread::sleep_for(m_poBaseConfig->nReadInterval);
 	}
 };
 
 inline
 ClReaderBase::ClReaderBase(const StReaderConfig *poConfig) :
-m_poConfig(poConfig),
+m_poBaseConfig(poConfig),
 m_bInterruptRequested(false)
 {}
 

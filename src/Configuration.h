@@ -14,22 +14,31 @@
 #include "./Logging/BaseLogger.h"
 #include "./PlayerPlugins/PlayerSpotify.h"
 #include "./ReaderPlugins/ReaderFile.h"
+#include "./Webserver.h"
 
 class ClConfiguration
 {
 public:
 	ClConfiguration();
-	StLoggerConfig* getLoggerConfig();
-	StSpotifyConfig* getSpotifyConfig();
-	StReaderConfig* getReaderConfig();
+	StLoggerConfig getLoggerConfig();
+	StSpotifyConfig getSpotifyConfig();
+	StReaderConfig getReaderConfig();
+	StWebserverConfig getWebserverConfig();
 private:
 	template<typename T> T getValue(const char* sProperty) const;
 	std::string m_sConfigFilePath;
 	std::unique_ptr<boost::property_tree::ptree> m_spPropertyTree;
 
-	StLoggerConfig m_stLoggerConfig;
-	StSpotifyConfig m_stSpotifyConfig;
-	StReaderConfig m_stReaderConfig;
+	void initializeLogFile();
+	void setupLoggerConfig();
+	void setupSpotifyConfig();
+	void setupReaderConfig();
+	void setupWebserverConfig();
+
+	StLoggerConfig m_oLoggerConfig;
+	StSpotifyConfig m_oSpotifyConfig;
+	StReaderConfig m_oReaderConfig;
+	StWebserverConfig m_oWebserverConfig;
 };
 
 

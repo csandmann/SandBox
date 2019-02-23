@@ -14,7 +14,7 @@
 
 class ClLogger {
 public:
-	ClLogger(const std::string &sLoggerName, const StLoggerConfig *poConfig = nullptr);
+	ClLogger(const std::string &sLoggerName);
 	void info(const std::string &sMessage);
 	void warn(const std::string &sMessage);
 	void error(const std::string &sMessage);

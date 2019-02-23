@@ -17,16 +17,22 @@ using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
 
+struct StWebserverConfig
+{
+	std::string sHostname;
+	unsigned int nPort;
+};
 
 class ClWebserver
 {
 public:
-	ClWebserver();
+	ClWebserver(const StWebserverConfig stConfig);
 	~ClWebserver();
 private:
 	http_listener m_oMainWebsite;
 	void handleMainWebsite(http_request oRequest);
 	ClLogger m_oLogger;
+	const StWebserverConfig m_oConfig;
 };
 
 #endif /* INCLUDE_WEBSERVER_H_ */

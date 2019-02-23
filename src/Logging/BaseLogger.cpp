@@ -10,7 +10,7 @@
 #include <fstream>
 
 ClBaseLogger::ClBaseLogger(const StLoggerConfig *const poLoggerConfig) :
-m_poConfig(poLoggerConfig)
+m_oConfig(poLoggerConfig ? *poLoggerConfig : StLoggerConfig())
 {
 	if (nullptr == poLoggerConfig)
 	{
@@ -24,8 +24,9 @@ ClBaseLogger* ClBaseLogger::getInstance(const StLoggerConfig *const poLoggerConf
 	return &oLogger;
 }
 
-ClBaseLogger* ClBaseLogger::init(const StLoggerConfig *const poLoggerConfig)
+ClBaseLogger* ClBaseLogger::init(const StLoggerConfig oLoggerConfig)
 {
+	const StLoggerConfig* poLoggerConfig = &oLoggerConfig;
 	return getInstance(poLoggerConfig);
 }
 
@@ -66,7 +67,7 @@ std::string ClBaseLogger::formatLine(const std::string &sMessage, const std::str
 
 void ClBaseLogger::error(const std::string& sMessage, const std::string sLoggerName /* = ""*/)
 {
-	if (m_poConfig->eLogLevel <= ELogLevel::ERROR)
+	if (m_oConfig.eLogLevel <= ELogLevel::ERROR)
 	{
 		std::string sLine = formatLine(sMessage, "ERROR", sLoggerName);
 		writeLine(sLine);
@@ -75,7 +76,7 @@ void ClBaseLogger::error(const std::string& sMessage, const std::string sLoggerN
 
 void ClBaseLogger::warn(const std::string& sMessage, const std::string sLoggerName /* = ""*/)
 {
-	if (m_poConfig->eLogLevel <= ELogLevel::WARNING)
+	if (m_oConfig.eLogLevel <= ELogLevel::WARNING)
 	{
 		std::string sLine = formatLine(sMessage, "WARNING", sLoggerName);
 		writeLine(sLine);
@@ -85,7 +86,7 @@ void ClBaseLogger::warn(const std::string& sMessage, const std::string sLoggerNa
 
 void ClBaseLogger::info(const std::string& sMessage, const std::string sLoggerName /* = ""*/)
 {
-	if (m_poConfig->eLogLevel <= ELogLevel::INFO)
+	if (m_oConfig.eLogLevel <= ELogLevel::INFO)
 	{
 		std::string sLine = formatLine(sMessage, "INFO", sLoggerName);
 		writeLine(sLine);
@@ -95,7 +96,7 @@ void ClBaseLogger::info(const std::string& sMessage, const std::string sLoggerNa
 
 void ClBaseLogger::debug(const std::string& sMessage, const std::string sLoggerName /* = ""*/)
 {
-	if (m_poConfig->eLogLevel <= ELogLevel::DEBUG)
+	if (m_oConfig.eLogLevel <= ELogLevel::DEBUG)
 	{
 		std::string sLine = formatLine(sMessage, "DEBUG", sLoggerName);
 		writeLine(sLine);
@@ -107,9 +108,16 @@ void ClBaseLogger::writeLine(const std::string &sLine)
 {
 	//write line
 	std::lock_guard<std::mutex> oGuard(m_oWriteMutex);
-	FILE* pFile = std::fopen(m_poConfig->sLogFilePath.c_str(), "a");
-	std::fprintf(pFile, "%s\n", sLine.c_str());
-	std::fclose(pFile);
+	if (m_oConfig.sLogFilePath != "")
+	{
+		FILE* pFile = std::fopen(m_oConfig.sLogFilePath.c_str(), "a");
+		std::fprintf(pFile, "%s\n", sLine.c_str());
+		std::fclose(pFile);
+	}
+	else
+	{
+		std::printf("%s\n", sLine.c_str());
+	}
 }
 
 
