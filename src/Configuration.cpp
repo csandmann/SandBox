@@ -10,6 +10,7 @@
 
 #include <chrono>
 #include <cstdio>
+#include <memory>
 
 ClConfiguration::ClConfiguration() :
 	m_sConfigFilePath("config.ini")
