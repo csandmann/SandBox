@@ -63,7 +63,6 @@ private:
 	void spotifyAuth(http_request oRequest);
 	void spotifyMainSite(http_request oRequest);
 	std::string buildSpotifyAuthorizationUri();
-	StSpotifyAuthCode authCodeFromUri(const std::string &sUri);
 	StSpotifyTokens tokensFromAuthCode(const StSpotifyAuthCode &stAuthCode);
 	std::string encodeClientIdAndSecret();
 	std::vector<std::string> splitStringAtDelimiter(const std::string &sInput, const char cDelimiter);

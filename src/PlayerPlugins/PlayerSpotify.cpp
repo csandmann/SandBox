@@ -64,39 +64,6 @@ void ClPlayerSpotify::decreaseVolume()
 	m_oLogger.info("Decreasing volume");
 }
 
-StSpotifyAuthCode ClPlayerSpotify::authCodeFromUri(const std::string &sUri)
-{
-	StSpotifyAuthCode stAuthCode;
-	auto vsSplitUri = splitStringAtDelimiter(sUri, '?');
-	if (vsSplitUri.size() != 2) //major problem
-	{
-		auto sMessage = std::string("authCodeFromUri: Unknown response from spotify ") + sUri;
-		m_oLogger.error(sMessage);
-		stAuthCode.bIsInitialized = false;
-	}
-	else //everything OK
-	{
-		auto vsArguments = splitStringAtDelimiter(vsSplitUri[1], '&');
-		for (auto &sArg : vsArguments)
-		{
-			auto vsTuple = splitStringAtDelimiter(sArg, '=');
-			if (vsTuple.size() > 1 && vsTuple[0] == "error")
-			{
-				auto sMessage = std::string("authCodeFromUri: Received error from spotify: ") + vsTuple[1];
-				m_oLogger.error(sMessage);
-				stAuthCode.bIsInitialized = false;
-				break;
-			}
-			else if (vsTuple.size() > 1 && vsTuple[0] == "code") {
-				stAuthCode.sAuthCode = vsTuple[1];
-				stAuthCode.bIsInitialized = true;
-				break;
-			}
-		}
-	}
-	return stAuthCode;
-}
-
 StSpotifyTokens ClPlayerSpotify::tokensFromAuthCode(const StSpotifyAuthCode &stAuthCode)
 {
 	StSpotifyTokens stTokens;
@@ -114,9 +81,28 @@ void ClPlayerSpotify::spotifyAuthReceiver(http_request oRequest)
 {
 	m_oLogger.debug(std::string("spotifyAuthReceiver: Incoming uri ") + oRequest.request_uri().to_string());
 	//get auth_code from request uri
-	auto stAuthCode = authCodeFromUri(oRequest.request_uri().to_string());
-	auto stSpotifyTokens = tokensFromAuthCode(stAuthCode);
-	//send OK response
+	//http://localhost:8080/spotify/auth_receiver?code=NApCCgBkWtQ&state=profile%2Factivity
+	//http://localhost:8080/spotify/auth_receiver?error=access_denied&state=STATE
+
+	StSpotifyAuthCode stAuthCode;
+	auto oRequestArgs = uri::split_query(uri::decode(oRequest.request_uri().query()));
+	if (oRequestArgs.find("code") != oRequestArgs.end())
+	{
+		stAuthCode.bIsInitialized = true;
+		stAuthCode.sAuthCode = oRequestArgs.at("code");
+	}
+	else if (oRequestArgs.find("error") != oRequestArgs.end())
+	{
+		stAuthCode.bIsInitialized = false;
+		m_oLogger.error(std::string("spotifyAuthReceiver " + oRequestArgs.at("error"));
+	}
+	else
+	{
+		m_oLogger.error(std::string("spotifyAuthReceiver: Internal error. Has spotify changed it's authorization handshake?"));
+	}
+
+	StSpotifyTokens stSpotifyTokens;
+
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
 	if (!stAuthCode.bIsInitialized || !stSpotifyTokens.bIsInitialized)
@@ -163,10 +149,10 @@ std::string ClPlayerSpotify::buildSpotifyAuthorizationUri()
 	oRedirectUri.set_path(m_oSpotifyAuthReceiver.uri().path());
 	std::string sRedirectUri = uri::encode_data_string(oRedirectUri.to_string());
 
-	uri_builder oSpotifyAuth(U("https://accounts.spotify.com/authorize")) \
-	.append_query(U("client_id"), U(m_oConfig.sClientId)) \
-	.append_query(U("response_type"), U("code")) \
-	.append_query(U("redirect_uri"), U(sRedirectUri), false);
-	std::string sTest = oSpotifyAuth.to_string();
-	return sTest;
+	uri_builder oSpotifyAuth(U("https://accounts.spotify.com/authorize"));
+	oSpotifyAuth
+		.append_query(U("client_id"), U(m_oConfig.sClientId))
+		.append_query(U("response_type"), U("code"))
+		.append_query(U("redirect_uri"), U(sRedirectUri), false);
+	return oSpotifyAuth.to_string();
 }
