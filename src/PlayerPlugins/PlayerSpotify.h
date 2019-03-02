@@ -8,6 +8,8 @@
 #ifndef SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 
+#include <experimental/filesystem>
+
 #include "PlayerBase.h"
 #include "../Logging/Logger.h"
 //cpprest
@@ -16,6 +18,7 @@
 using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
+namespace fs = std::experimental::filesystem;
 
 struct StSpotifyConfig : StPlayerConfig
 {
@@ -23,20 +26,21 @@ struct StSpotifyConfig : StPlayerConfig
 	std::string sClientSecret;
 	std::string sHostname;
 	unsigned int nPort;
+	fs::path oCacheDir;
 };
 
-struct StSpotifyAuthCode
+namespace SpotifyTokens
 {
-	bool bIsInitialized = false;
-	std::string sAuthCode;
-};
+	struct StTokens
+	{
+		bool bIsInitialized = false;
+		std::string sAccessToken;
+		std::string sRefreshToken;
+	};
 
-struct StSpotifyTokens
-{
-	bool bIsInitialized = false;
-	std::string sAccessToken;
-	std::string sRefreshToken;
-};
+	bool dumpTokens(const StTokens &stTokens, const char* pcOutputFile);
+	StTokens readTokens(const char* pcInputFile);
+}
 
 
 class ClPlayerSpotify : public ClPlayerBase
@@ -56,16 +60,21 @@ private:
 	http_listener m_oSpotifyMainSite;
 	ClLogger m_oLogger;
 	const StSpotifyConfig m_oConfig;
+	const std::string m_sRedirectUri;
 	const std::string m_sSpotifyAuthorizationUri;
-	StSpotifyTokens m_stTokens;
+	fs::path m_oTokenFilePath;
+	SpotifyTokens::StTokens m_stTokens;
 
+	//http handlers
 	void spotifyAuthReceiver(http_request oRequest);
 	void spotifyAuth(http_request oRequest);
 	void spotifyMainSite(http_request oRequest);
+	//helper functions
+	std::string buildRedirectUri();
 	std::string buildSpotifyAuthorizationUri();
-	StSpotifyTokens tokensFromAuthCode(const StSpotifyAuthCode &stAuthCode);
-	std::string encodeClientIdAndSecret();
-	std::vector<std::string> splitStringAtDelimiter(const std::string &sInput, const char cDelimiter);
+	void setTokensFromAuthCode(const char* stAuthCode);
+	void dumpTokens();
+	void readTokens();
 };
 
 

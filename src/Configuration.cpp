@@ -52,11 +52,13 @@ void ClConfiguration::setupSpotifyConfig()
 	std::string sClientSecret = getValue<std::string>("Spotify.clientSecret");
 	std::string sHostname = getValue<std::string>("SandBox.hostname");
 	unsigned int nPort = getValue<unsigned int>("SandBox.port");
+	std::string sCacheDir = getValue<std::string>("SandBox.cacheDirectory");
 
 	m_oSpotifyConfig.sClientId = sClientId;
 	m_oSpotifyConfig.sClientSecret = sClientSecret;
 	m_oSpotifyConfig.nPort = nPort;
 	m_oSpotifyConfig.sHostname = sHostname;
+	m_oSpotifyConfig.oCacheDir = fs::path(sCacheDir);
 }
 
 void ClConfiguration::setupWebserverConfig()
