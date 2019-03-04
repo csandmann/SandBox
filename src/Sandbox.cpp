@@ -9,7 +9,7 @@
 #include <iostream>
 #include <thread>
 //plugins
-#include "PlayerPlugins/PlayerSpotify.h"
+#include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderFile.h"
 //main stuff
 #include "AudioDatabase.h"

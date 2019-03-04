@@ -14,22 +14,22 @@ ClLogger::ClLogger(const std::string &sLoggerName) :
 m_sLoggerName(sLoggerName)
 {}
 
-void ClLogger::info(const std::string& sMessage)
+void ClLogger::info(const std::string& sMessage)  const
 {
 	ClBaseLogger::get()->info(sMessage, m_sLoggerName);
 }
 
-void ClLogger::warn(const std::string& sMessage)
+void ClLogger::warn(const std::string& sMessage)  const
 {
 	ClBaseLogger::get()->warn(sMessage, m_sLoggerName);
 }
 
-void ClLogger::error(const std::string& sMessage)
+void ClLogger::error(const std::string& sMessage)  const
 {
 	ClBaseLogger::get()->error(sMessage, m_sLoggerName);
 }
 
-void ClLogger::debug(const std::string& sMessage)
+void ClLogger::debug(const std::string& sMessage) const
 {
 	ClBaseLogger::get()->debug(sMessage, m_sLoggerName);
 }

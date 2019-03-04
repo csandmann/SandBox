@@ -11,10 +11,10 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-#include "./Logging/BaseLogger.h"
-#include "./PlayerPlugins/PlayerSpotify.h"
-#include "./ReaderPlugins/ReaderFile.h"
-#include "./Webserver.h"
+#include "Logging/BaseLogger.h"
+#include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
+#include "ReaderPlugins/ReaderFile.h"
+#include "Webserver.h"
 
 class ClConfiguration
 {

@@ -8,17 +8,20 @@
 #ifndef SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_H_
 
-#include <experimental/filesystem>
+#include "../PlayerBase.h"
+#include "../../Logging/Logger.h"
+#include "SpotifyTokens.h"
 
-#include "PlayerBase.h"
-#include "../Logging/Logger.h"
-//cpprest
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
+
+#include <experimental/filesystem>
+
 using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
 namespace fs = std::experimental::filesystem;
+
 
 struct StSpotifyConfig : StPlayerConfig
 {
@@ -28,19 +31,6 @@ struct StSpotifyConfig : StPlayerConfig
 	unsigned int nPort;
 	fs::path oCacheDir;
 };
-
-namespace SpotifyTokens
-{
-	struct StTokens
-	{
-		bool bIsInitialized = false;
-		std::string sAccessToken;
-		std::string sRefreshToken;
-	};
-
-	bool dumpTokens(const StTokens &stTokens, const char* pcOutputFile);
-	StTokens readTokens(const char* pcInputFile);
-}
 
 
 class ClPlayerSpotify : public ClPlayerBase
@@ -56,25 +46,22 @@ public:
 	void increaseVolume() override;
 	void decreaseVolume() override;
 private:
-	http_listener m_oSpotifyAuthReceiver;
-	http_listener m_oSpotifyMainSite;
+	//main functionality
 	ClLogger m_oLogger;
 	const StSpotifyConfig m_oConfig;
-	const std::string m_sRedirectUri;
-	const std::string m_sSpotifyAuthorizationUri;
+	//listeners
+	http_listener m_oSpotifyAuthReceiver;
+	http_listener m_oSpotifyMainSite;
+	//tokens
 	fs::path m_oTokenFilePath;
 	SpotifyTokens::StTokens m_stTokens;
-
-	//http handlers
-	void spotifyAuthReceiver(http_request oRequest);
-	void spotifyAuth(http_request oRequest);
-	void spotifyMainSite(http_request oRequest);
+	//http callbacks
+	void cbkSpotifyAuthReceiver(http_request oRequest);
+	void cbkSpotifyMainSite(http_request oRequest);
 	//helper functions
-	std::string buildRedirectUri();
-	std::string buildSpotifyAuthorizationUri();
-	void setTokensFromAuthCode(const char* stAuthCode);
-	void dumpTokens();
-	void readTokens();
+	const std::string buildRedirectUri() const;
+	const std::string buildSpotifyAuthorizationUri() const;
+	SpotifyTokens::StTokens getTokensFromAuthCode(const std::string &sAuthCode) const;
 };
 
 
