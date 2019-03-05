@@ -8,18 +8,19 @@
 #ifndef MANAGER_H_
 #define MANAGER_H_
 
-#include <thread>
-#include <chrono>
-
 #include "PlayerPlugins/PlayerBase.h"
 #include "ReaderPlugins/ReaderBase.h"
 #include "AudioDatabase.h"
+
+#include <thread>
+#include <chrono>
+
 
 
 class ClManager
 {
 public:
-	ClManager(ClReaderBase *const poReader, ClAudioDatabase *const poAudioDb);
+	ClManager(ClReaderBase *poReader, ClAudioDatabase *poAudioDb);
 	~ClManager();
 	void start();
 	void stop();

@@ -4,7 +4,7 @@ set(SandBox_VERSION_MAJOR 0)
 set(SandBox_VERSION_MINOR 1)
 set(SandBox_VERSION_PATCH 0)
 
-#necessary linking with stdc++fs
+#necessary since <experimental/filesystem> is used
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
@@ -21,7 +21,7 @@ find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 
 #compilation and linking linking
-target_compile_options(SandBox PUBLIC -std=c++11 -Wall)
+target_compile_options(SandBox PUBLIC -std=c++14 -Wall)
 include_directories(${Boost_INCLUDE_DIRS} ${CPPREST_INCLUDE_DIRS})
 target_link_libraries(SandBox PUBLIC ${CPPREST_LIBRARIES} ${Boost_SYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} stdc++fs)
 

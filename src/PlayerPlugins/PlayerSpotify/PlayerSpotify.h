@@ -11,10 +11,8 @@
 #include "../PlayerBase.h"
 #include "../../Logging/Logger.h"
 #include "SpotifyTokens.h"
-
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
-
 #include <experimental/filesystem>
 
 using namespace web;
@@ -40,7 +38,7 @@ public:
 	~ClPlayerSpotify() override;
 	const std::string getIdentifier() const override;
 	const bool restEndpointActive() const override;
-	void play(const char* pcMessage) override;
+	void play(const std::string &Message) override;
 	void stop() override;
 	void pause() override;
 	void increaseVolume() override;
@@ -61,7 +59,7 @@ private:
 	//helper functions
 	const std::string buildRedirectUri() const;
 	const std::string buildSpotifyAuthorizationUri() const;
-	SpotifyTokens::StTokens getTokensFromAuthCode(const std::string &sAuthCode) const;
+	SpotifyTokens::StTokens getTokensFromAuthCode(const std::string &sAuthCode);
 };
 
 

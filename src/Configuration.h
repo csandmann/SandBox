@@ -8,13 +8,12 @@
 #ifndef SRC_CONFIGURATION_H_
 #define SRC_CONFIGURATION_H_
 
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-
 #include "Logging/BaseLogger.h"
 #include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderFile.h"
 #include "Webserver.h"
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 class ClConfiguration
 {

@@ -5,7 +5,6 @@
  *      Author: check
  */
 #include "ReaderFile.h"
-
 #include <fstream>
 #include <string>
 

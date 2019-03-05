@@ -5,7 +5,6 @@
  *      Author: check
  */
 #include "BaseLogger.h"
-
 #include <sstream>
 #include <fstream>
 

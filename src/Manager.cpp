@@ -8,7 +8,7 @@
 #include "Manager.h"
 #include <chrono>
 
-ClManager::ClManager(ClReaderBase *const poReader, ClAudioDatabase *const poAudioDb) :
+ClManager::ClManager(ClReaderBase *poReader, ClAudioDatabase *poAudioDb) :
 m_poReader(poReader),
 m_poAudioDb(poAudioDb),
 m_poActivePlayer(nullptr),

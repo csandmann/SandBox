@@ -7,11 +7,12 @@
 
 #ifndef INCLUDE_WEBSERVER_H_
 #define INCLUDE_WEBSERVER_H_
+
+#include "./Logging/Logger.h"
 #include <thread>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
 
-#include "./Logging/Logger.h"
 
 using namespace web;
 using namespace web::http;

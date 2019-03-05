@@ -8,11 +8,9 @@
 #ifndef AUDIODATABASE_H_
 #define AUDIODATABASE_H_
 
-#include <map>
-#include <thread>
-#include "experimental/filesystem"
-
 #include "./Logging/Logger.h"
+#include <map>
+#include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
 
@@ -36,7 +34,6 @@ private:
 	std::map<int, StAudioItem> m_oAudioMap;
 	ClLogger m_oLogger;
 };
-
 
 
 #endif /* AUDIODATABASE_H_ */

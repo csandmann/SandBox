@@ -40,9 +40,9 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 	return true;
 }
 
-void ClPlayerSpotify::play(const char* pcMessage)
+void ClPlayerSpotify::play(const std::string &sMessage)
 {
-	m_oLogger.info(std::string("Playing ") + std::string(pcMessage));
+	m_oLogger.info(std::string("Playing ") + sMessage);
 }
 
 void ClPlayerSpotify::stop()
@@ -65,7 +65,7 @@ void ClPlayerSpotify::decreaseVolume()
 	m_oLogger.info("Decreasing volume");
 }
 
-SpotifyTokens::StTokens ClPlayerSpotify::getTokensFromAuthCode(const std::string &sAuthCode) const
+SpotifyTokens::StTokens ClPlayerSpotify::getTokensFromAuthCode(const std::string &sAuthCode)
 {
 	m_oLogger.debug(std::string("getTokensFromAuthCode: AuthCode=") + sAuthCode);
 	SpotifyTokens::StTokens stTokens;

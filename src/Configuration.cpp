@@ -7,7 +7,6 @@
 
 #include "Configuration.h"
 #include "../Resources/generated_config.h"
-
 #include <chrono>
 #include <cstdio>
 #include <memory>

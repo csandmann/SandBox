@@ -6,8 +6,6 @@
 // Description : Main Application
 //============================================================================
 
-#include <iostream>
-#include <thread>
 //plugins
 #include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderFile.h"
@@ -17,6 +15,10 @@
 #include "Webserver.h"
 #include "Configuration.h"
 #include "./Logging/BaseLogger.h"
+//standard libs
+#include <iostream>
+#include <thread>
+
 
 int main() {
 	//initialize config and logging
@@ -25,11 +27,11 @@ int main() {
 	//initialize components
 	ClWebserver oWebserver(oConfig.getWebserverConfig());
 	ClAudioDatabase oAudioDb;
-	ClPlayerSpotify oSpotifyPlayer(oConfig.getSpotifyConfig());
+	ClPlayerSpotify oPlayerSpotify(oConfig.getSpotifyConfig());
 	ClReaderFile oReader(oConfig.getReaderConfig());
 	//create manager
 	ClManager oManager(&oReader, &oAudioDb);
-	oManager.registerPlayer(&oSpotifyPlayer);
+	oManager.registerPlayer(&oPlayerSpotify);
 	//start threads
 	std::thread oReaderThread = std::thread(&ClReaderFile::start, &oReader);
 	std::thread oManagerThread = std::thread(&ClManager::start, &oManager);
