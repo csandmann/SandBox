@@ -18,13 +18,14 @@ ClPlayerSpotify::ClPlayerSpotify(const StSpotifyConfig oConfig):
 ClPlayerBase(&m_oConfig),
 m_oLogger(ClLogger("Spotify")),
 m_oConfig(oConfig),
-m_oSpotifyAuthReceiver(uri("http://localhost:8080/spotify/auth_receiver")),
+m_oSpotifyAuthCodeReceiver(uri("http://localhost:8080/spotify/auth_receiver")),
 m_oSpotifyMainSite(uri("http://localhost:8080/spotify")),
 m_oTokenFilePath(oConfig.oCacheDir / fs::path("spotifyTokens.txt")),
 m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 {
-	m_oSpotifyAuthReceiver.open().wait();
-	m_oSpotifyAuthReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthReceiver(request); });
+	//start listeners for websites
+	m_oSpotifyAuthCodeReceiver.open().wait();
+	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
 	m_oSpotifyMainSite.open().wait();
 	m_oSpotifyMainSite.support(methods::GET,  [this](http_request request){ this->cbkSpotifyMainSite(request); });
 }
@@ -113,7 +114,7 @@ SpotifyTokens::StTokens ClPlayerSpotify::getTokensFromAuthCode(const std::string
 	return stTokens;
 }
 
-void ClPlayerSpotify::cbkSpotifyAuthReceiver(http_request oRequest)
+void ClPlayerSpotify::cbkSpotifyAuthCodeReceiver(http_request oRequest)
 {
 	//Test-Calls
 	//http://localhost:8080/spotify/auth_receiver?code=NApCCgBkWtQ&state=profile%2Factivity
@@ -154,6 +155,7 @@ void ClPlayerSpotify::cbkSpotifyAuthReceiver(http_request oRequest)
 void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 {
 	//send Website response
+	refreshAccessToken();
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
 	std::stringstream ss;
@@ -162,26 +164,74 @@ void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 	oRequest.reply(oResponse);
 }
 
-const std::string ClPlayerSpotify::buildRedirectUri() const
+const std::string ClPlayerSpotify::buildRedirectUri()
 {
 	//build redirect URI
 	uri_builder oRedirectUri;
 	oRedirectUri.set_scheme("http")
 		.set_host(m_oConfig.sHostname)
 		.set_port(m_oConfig.nPort)
-		.set_path(m_oSpotifyAuthReceiver.uri().path());
+		.set_path(m_oSpotifyAuthCodeReceiver.uri().path());
 	return oRedirectUri.to_string();
 }
 
-const std::string ClPlayerSpotify::buildSpotifyAuthorizationUri() const
+const std::string ClPlayerSpotify::buildSpotifyAuthorizationUri()
 {
 	//build uri
 	std::string sRedirectUri = uri::encode_data_string(buildRedirectUri());
+	std::string sScope = uri::encode_data_string(std::string("user-read-playback-state user-modify-playback-state"));
 	uri_builder oSpotifyAuth(U("https://accounts.spotify.com/authorize"));
 	oSpotifyAuth
 		.append_query(U("client_id"), U(m_oConfig.sClientId))
 		.append_query(U("response_type"), U("code"))
-		.append_query(U("redirect_uri"), U(sRedirectUri), false);
+		.append_query(U("redirect_uri"), U(sRedirectUri), false)
+		.append_query(U("scope"), U(sScope), false);
 	std::string sAuthUri = oSpotifyAuth.to_string();
 	return sAuthUri;
+}
+
+void ClPlayerSpotify::refreshAccessToken()
+{
+	//build body of request
+	uri_builder oParameters;
+	oParameters.append_query(U("grant_type"), U("refresh_token"))
+			   .append_query(U("refresh_token"), U(m_stTokens.sRefreshToken));
+	std::string sParameters = oParameters.to_string().substr(2);
+	//get base64-encoded authorization
+	auto sAuthorization = utility::conversions::to_utf8string(m_oConfig.sClientId + std::string(":") + m_oConfig.sClientSecret);
+	std::vector<unsigned char> vcAuthorization(sAuthorization.size());
+	std::memcpy(vcAuthorization.data(), sAuthorization.c_str(), sAuthorization.size());
+	std::string sEncodedAuth = utility::conversions::to_base64(vcAuthorization);
+	//build request
+	http_request oRequest(methods::POST);
+	oRequest.headers().add(U("Content-Type"), U("application/x-www-form-urlencoded"));
+	oRequest.headers().add(U("Authorization"), U(sEncodedAuth));
+	oRequest.set_body(U(sParameters));
+	//make request
+	http_client oClient("https://accounts.spotify.com/api/token");
+	pplx::task<void> oTask = oClient.request(oRequest)
+	        .then([this](http_response response)-> pplx::task<json::value>{
+	            if(response.status_code() == status_codes::OK){
+	                return response.extract_json();
+	            } else {
+	            	this->m_oLogger.error("refreshAccessToken: Could not parse response " + response.to_string());
+	            	return pplx::task_from_result(json::value());
+	            };})
+	        .then([&](pplx::task<json::value> previousTask){
+	            try{
+	                const json::value &oJson = previousTask.get();
+					const auto oObject = oJson.as_object();
+					//initialize tokens
+					this->m_stTokens.sAccessToken= oObject.at("access_token").as_string();
+	            }
+	            catch(const http_exception &e){
+	            	this->m_oLogger.error(std::string("refreshAccessToken: Could not unpack JSON response: ") + std::string(e.what()));
+	            }
+	        });
+
+	try{
+	    oTask.wait();
+	} catch(std::exception &e){
+		m_oLogger.error(std::string("refreshAccessToken: Could not perform request: ") + std::string(e.what()));
+	}
 }

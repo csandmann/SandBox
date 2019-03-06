@@ -48,18 +48,19 @@ private:
 	ClLogger m_oLogger;
 	const StSpotifyConfig m_oConfig;
 	//listeners
-	http_listener m_oSpotifyAuthReceiver;
+	http_listener m_oSpotifyAuthCodeReceiver;
 	http_listener m_oSpotifyMainSite;
 	//tokens
 	fs::path m_oTokenFilePath;
 	SpotifyTokens::StTokens m_stTokens;
 	//http callbacks
-	void cbkSpotifyAuthReceiver(http_request oRequest);
+	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	void cbkSpotifyMainSite(http_request oRequest);
 	//helper functions
-	const std::string buildRedirectUri() const;
-	const std::string buildSpotifyAuthorizationUri() const;
+	const std::string buildRedirectUri();
+	const std::string buildSpotifyAuthorizationUri();
 	SpotifyTokens::StTokens getTokensFromAuthCode(const std::string &sAuthCode);
+	void refreshAccessToken();
 };
 
 
