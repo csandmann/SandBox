@@ -11,14 +11,17 @@
 #include "../PlayerBase.h"
 #include "../../Logging/Logger.h"
 #include "SpotifyTokens.h"
+#include <boost/filesystem.hpp>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
-#include <experimental/filesystem>
+#include <cpprest/http_client.h>
+#include <cpprest/json.h>
+#include <cpprest/uri_builder.h>
 
 using namespace web;
 using namespace web::http;
 using namespace web::http::experimental::listener;
-namespace fs = std::experimental::filesystem;
+namespace fs = boost::filesystem;
 
 
 struct StSpotifyConfig : StPlayerConfig
@@ -57,9 +60,9 @@ private:
 	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	void cbkSpotifyMainSite(http_request oRequest);
 	//helper functions
-	const std::string buildRedirectUri();
-	const std::string buildSpotifyAuthorizationUri();
-	SpotifyTokens::StTokens getTokensFromAuthCode(const std::string &sAuthCode);
+	const utility::string_t buildRedirectUri();
+	const utility::string_t buildSpotifyAuthorizationUri();
+	SpotifyTokens::StTokens getTokensFromAuthCode(const utility::string_t &sAuthCode);
 	void refreshAccessToken();
 };
 

@@ -10,9 +10,9 @@
 
 #include "ReaderBase.h"
 #include "../Logging/Logger.h"
-#include <experimental/filesystem>
+#include <boost/filesystem.hpp>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = boost::filesystem;
 
 
 class ClReaderFile : public ClReaderBase

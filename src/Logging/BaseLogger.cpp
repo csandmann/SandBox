@@ -4,9 +4,11 @@
  *  Created on: Feb 21, 2019
  *      Author: check
  */
+#define _CRT_SECURE_NO_WARNINGS
 #include "BaseLogger.h"
 #include <sstream>
 #include <fstream>
+#include <ctime>
 
 ClBaseLogger::ClBaseLogger(const StLoggerConfig *const poLoggerConfig) :
 m_oConfig(poLoggerConfig ? *poLoggerConfig : StLoggerConfig())

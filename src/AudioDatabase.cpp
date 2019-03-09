@@ -48,7 +48,7 @@ bool ClAudioDatabase::initialize()
 		 StAudioItem stAudioItem = audioItemFromFile(oEntry.path());
 		 if (!stAudioItem.bIsInitialized)
 		 {
-			 std::printf("ClAudioDatabase::initialize(): Could not parse %s", oEntry.path().c_str());
+			 std::printf("ClAudioDatabase::initialize(): Could not parse %s", oEntry.path().string().c_str());
 			 continue;
 		 }
 		 int nEntry = std::stoi(oEntry.path().filename().string());
@@ -72,7 +72,7 @@ StAudioItem ClAudioDatabase::audioItemFromFile(const fs::path &oPath)
 		stAudioItem.sAudioInfo = sAudioInfo;
 		stAudioItem.bIsInitialized = true;
 	}
-	catch (std::exception &e)
+	catch (std::exception &)
 	{
 		stAudioItem.bIsInitialized = false;
 	}
