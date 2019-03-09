@@ -38,7 +38,7 @@ bool ClAudioDatabase::reinitialize()
 
 bool ClAudioDatabase::initialize()
 {
-	 const fs::path oAudioDbDir("/home/check/test/AudioDatabase");
+	 const fs::path oAudioDbDir("test/AudioDb");
 	 if (!fs::exists(oAudioDbDir))
 	 {
 		 fs::create_directories(oAudioDbDir);

@@ -10,7 +10,7 @@
 
 ClReaderFile::ClReaderFile(const StReaderConfig oReaderConfig):
 ClReaderBase(&m_oReaderConfig),
-m_oRFIDPath("/home/check/test/rfid"),
+m_oRFIDPath("test/rfid"),
 m_oReaderConfig(oReaderConfig),
 m_oLogger(ClLogger("ReaderFile"))
 {}

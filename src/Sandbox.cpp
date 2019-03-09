@@ -6,15 +6,15 @@
 // Description : Main Application
 //============================================================================
 
-//plugins
-#include "Configuration.h"
-#include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
-#include "ReaderPlugins/ReaderFile.h"
 //main stuff
 #include "AudioDatabase.h"
+#include "Configuration.h"
 #include "Manager.h"
 #include "Webserver.h"
 #include "./Logging/BaseLogger.h"
+//plugins
+#include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
+#include "ReaderPlugins/ReaderFile.h"
 //standard libs
 #include <iostream>
 #include <thread>

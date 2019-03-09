@@ -28,6 +28,10 @@ m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
 	m_oSpotifyMainSite.open().wait();
 	m_oSpotifyMainSite.support(methods::GET,  [this](http_request request){ this->cbkSpotifyMainSite(request); });
+	if (m_stTokens.bIsInitialized)
+	{
+		refreshAccessToken();
+	}
 }
 
 ClPlayerSpotify::~ClPlayerSpotify() {
@@ -43,12 +47,63 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 
 void ClPlayerSpotify::play(const std::string &sMessage)
 {
-	m_oLogger.info(std::string("Playing ") + sMessage);
+	m_oLogger.info(std::string("play: ") + sMessage);
+	//build body
+	auto oURIs = json::value::array();
+	oURIs[0] = json::value::string(S2U(sMessage));
+	auto oBody = json::value::object();
+	oBody[U("uris")] = oURIs;
+	auto sParameters = oBody.to_string();
+	//build request
+	http_request oRequest(methods::PUT);
+	oRequest.headers().add(U("Content-Type"), U("application/json"));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_stTokens.sAccessToken));
+	oRequest.set_body(S2U(sParameters));
+	//make request
+	http_client oClient(U("https://api.spotify.com/v1/me/player/play"));
+	pplx::task<void> oTask = oClient.request(oRequest)
+		.then([this](http_response response) {
+		if (response.status_code() == status_codes::NoContent) {
+			return;
+		}
+		else {
+			this->m_oLogger.error(std::string("play: Could not parse response ") + U2S(response.to_string()));
+ 			return;
+		}; });
+
+		try {
+			oTask.wait();
+		}
+		catch (std::exception &e) {
+			m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
+		}
 }
 
 void ClPlayerSpotify::stop()
 {
-	m_oLogger.info("Stopped");
+	m_oLogger.info(std::string("stopping: "));
+	//build request
+	http_request oRequest(methods::PUT);
+	oRequest.headers().add(U("Content-Type"), U("application/json"));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_stTokens.sAccessToken));
+	//make request
+	http_client oClient(U("https://api.spotify.com/v1/me/player/pause"));
+	pplx::task<void> oTask = oClient.request(oRequest)
+		.then([this](http_response response) {
+		if (response.status_code() == status_codes::NoContent) {
+			return;
+		}
+		else {
+			this->m_oLogger.error(std::string("play: Could not parse response ") + U2S(response.to_string()));
+			return;
+		}; });
+
+	try {
+		oTask.wait();
+	}
+	catch (std::exception &e) {
+		m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
+	}
 }
 
 void ClPlayerSpotify::pause()
@@ -155,7 +210,6 @@ void ClPlayerSpotify::cbkSpotifyAuthCodeReceiver(http_request oRequest)
 void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 {
 	//send Website response
-	refreshAccessToken();
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
 	std::stringstream ss;
@@ -198,14 +252,15 @@ void ClPlayerSpotify::refreshAccessToken()
 			   .append_query(U("refresh_token"), S2U(m_stTokens.sRefreshToken));
 	auto sParameters = oParameters.to_string().substr(2);
 	//get base64-encoded authorization
-	auto sAuthorization = utility::conversions::to_utf8string(m_oConfig.sClientId + std::string(":") + m_oConfig.sClientSecret);
-	std::vector<unsigned char> vcAuthorization(sAuthorization.size());
-	std::memcpy(vcAuthorization.data(), sAuthorization.c_str(), sAuthorization.size());
+	auto sDecodedAuth = utility::conversions::to_utf8string(m_oConfig.sClientId + std::string(":") + m_oConfig.sClientSecret);
+	std::vector<unsigned char> vcAuthorization(sDecodedAuth.size());
+	std::memcpy(vcAuthorization.data(), sDecodedAuth.c_str(), sDecodedAuth.size());
 	auto sEncodedAuth = utility::conversions::to_base64(vcAuthorization);
+	auto sAuthorization = utility::string_t(U("Basic ")) + sEncodedAuth;
 	//build request
 	http_request oRequest(methods::POST);
 	oRequest.headers().add(U("Content-Type"), U("application/x-www-form-urlencoded"));
-	oRequest.headers().add(U("Authorization"), sEncodedAuth);
+	oRequest.headers().add(U("Authorization"), sAuthorization);
 	oRequest.set_body(sParameters);
 	//make request
 	http_client oClient(U("https://accounts.spotify.com/api/token"));
@@ -223,6 +278,7 @@ void ClPlayerSpotify::refreshAccessToken()
 					const auto oObject = oJson.as_object();
 					//initialize tokens
 					this->m_stTokens.sAccessToken= U2S(oObject.at(U("access_token")).as_string());
+					SpotifyTokens::dumpTokens(this->m_stTokens, this->m_oTokenFilePath.string());
 	            }
 	            catch(const http_exception &e){
 	            	this->m_oLogger.error(std::string("refreshAccessToken: Could not unpack JSON response: ") + std::string(e.what()));

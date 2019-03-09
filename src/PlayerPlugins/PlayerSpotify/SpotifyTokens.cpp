@@ -55,6 +55,11 @@ namespace SpotifyTokens
 		try
 		{
 			std::ifstream ifsIn(sInputFile.c_str());
+			if (ifsIn.fail())
+			{
+				stTokens.bIsInitialized = false;
+				return stTokens;
+			}
 			std::getline(ifsIn, stTokens.sAccessToken);
 			std::getline(ifsIn, stTokens.sRefreshToken);
 			ifsIn.close();
