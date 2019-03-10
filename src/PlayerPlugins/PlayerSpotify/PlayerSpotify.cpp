@@ -53,7 +53,7 @@ void ClPlayerSpotify::play(const std::string &sMessage)
 	oURIs[0] = json::value::string(S2U(sMessage));
 	auto oBody = json::value::object();
 	oBody[U("uris")] = oURIs;
-	auto sParameters = oBody.to_string();
+	auto sParameters = oBody.serialize();
 	//build request
 	http_request oRequest(methods::PUT);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));

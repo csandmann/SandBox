@@ -23,7 +23,7 @@ ClConfiguration::ClConfiguration() :
 
 void ClConfiguration::initializeLogFile()
 {
-	m_spPropertyTree = std::make_unique<boost::property_tree::ptree>();
+	m_spPropertyTree.reset(new boost::property_tree::ptree());
 	try
 	{
 		boost::property_tree::ini_parser::read_ini(m_sConfigFilePath.c_str(), *m_spPropertyTree.get());
