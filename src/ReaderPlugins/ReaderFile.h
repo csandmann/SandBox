@@ -14,14 +14,14 @@
 
 namespace fs = boost::filesystem;
 
-
 class ClReaderFile : public ClReaderBase
 {
 public:
 	ClReaderFile(const StReaderConfig oReaderConfig);
 	~ClReaderFile();
 private:
-	const StReaderMessage read() override;
+	const std::vector<unsigned char> read() override;
+	void write(const std::vector<unsigned char> &stMsg) override;
 	const fs::path m_oRFIDPath;
 	const StReaderConfig m_oReaderConfig;
 	ClLogger m_oLogger;

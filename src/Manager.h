@@ -10,7 +10,6 @@
 
 #include "PlayerPlugins/PlayerBase.h"
 #include "ReaderPlugins/ReaderBase.h"
-#include "AudioDatabase.h"
 
 #include <thread>
 #include <chrono>
@@ -20,7 +19,7 @@
 class ClManager
 {
 public:
-	ClManager(ClReaderBase *poReader, ClAudioDatabase *poAudioDb);
+	ClManager(ClReaderBase *poReader);
 	~ClManager();
 	void start();
 	void stop();
@@ -28,15 +27,14 @@ public:
 private:
 	std::vector<ClPlayerBase*> m_vpPlayers;
 	ClReaderBase *const m_poReader;
-	ClAudioDatabase *const m_poAudioDb;
 
 	ClPlayerBase *m_poActivePlayer;
-	StReaderMessage m_stCurrentMsg;
+	ReaderMessage::StMessage m_stCurrentMsg;
 
 	bool m_bInterruptRequested;
 	std::chrono::milliseconds m_nWaitTime;
-	bool playbackNeeded(const StReaderMessage &stMsg);
-	bool playbackToStop(const StReaderMessage &stMsg);
+	bool playbackNeeded(const ReaderMessage::StMessage &stMsg);
+	bool playbackToStop(const ReaderMessage::StMessage &stMsg);
 };
 
 

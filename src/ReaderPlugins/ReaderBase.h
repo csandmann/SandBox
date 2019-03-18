@@ -10,18 +10,10 @@
 
 #include <chrono>
 #include <thread>
-
-enum class EReaderStatus
-{
-	DETECTED = 0,
-	EMPTY = 1
-};
-
-struct StReaderMessage
-{
-	EReaderStatus eStatus;
-	int nKey;
-};
+#include <vector>
+#include <string>
+#include <cstring>
+#include "ReaderMessage.h"
 
 struct StReaderConfig
 {
@@ -35,41 +27,17 @@ public:
 	virtual ~ClReaderBase(){};
 	void start();
 	void stop();
-	StReaderMessage getMessage();
+	ReaderMessage::StMessage getMessage();
+	void requestWrite(const ReaderMessage::StCardData &stCardData);
 protected:
-	virtual const StReaderMessage read() = 0;
-	StReaderMessage m_stReaderMessage;
+	virtual const std::vector<unsigned char> read() = 0;
+	virtual void write(const std::vector<unsigned char> &stMessage) = 0;
+	ReaderMessage::StMessage m_stReaderMessage;
+	ReaderMessage::StCardData m_stToWrite;
 	const StReaderConfig *m_poBaseConfig;
 	bool m_bInterruptRequested;
 };
 
 
-inline
-StReaderMessage ClReaderBase::getMessage()
-{
-	return m_stReaderMessage;
-};
-
-inline
-void ClReaderBase::stop()
-{
-	m_bInterruptRequested = true;
-};
-
-inline
-void ClReaderBase::start()
-{
-	while (!m_bInterruptRequested)
-	{
-		m_stReaderMessage = read();
-		std::this_thread::sleep_for(m_poBaseConfig->nReadInterval);
-	}
-};
-
-inline
-ClReaderBase::ClReaderBase(const StReaderConfig *poConfig) :
-m_poBaseConfig(poConfig),
-m_bInterruptRequested(false)
-{}
 
 #endif /* INCLUDE_READERBASE_H_ */

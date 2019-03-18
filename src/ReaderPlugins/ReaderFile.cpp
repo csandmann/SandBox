@@ -17,22 +17,29 @@ m_oLogger(ClLogger("ReaderFile"))
 
 ClReaderFile::~ClReaderFile() {}
 
-const StReaderMessage ClReaderFile::read()
+const std::vector<unsigned char> ClReaderFile::read()
 {
-	StReaderMessage stMsg;
+	std::vector<unsigned char> vcData;
 	if (fs::exists(m_oRFIDPath))
 	{
-		std::string sNumber;
-		std::ifstream fin(m_oRFIDPath.string().c_str());
-		std::getline(fin, sNumber);
+		std::ifstream fin(m_oRFIDPath.string().c_str(), std::ios::binary);
+        //get data size
+        fin.seekg(0, std::ios::end);
+        int nSize = fin.tellg();
+        fin.seekg(0, std::ios::beg);
+        //read
+		vcData.resize(nSize);
+        fin.read(reinterpret_cast<char*>(vcData.data()), nSize);
 		fin.close();
-		int nKey = std::stoi(sNumber);
-		stMsg.nKey = nKey;
-		stMsg.eStatus = EReaderStatus::DETECTED;
+		//return
+		return vcData;
 	}
-	else
-	{
-		stMsg.eStatus = EReaderStatus::EMPTY;
-	}
-	return stMsg;
+	return vcData;
+}
+
+void ClReaderFile::write(const std::vector<unsigned char> &vcData)
+{
+	std::ofstream fout(m_oRFIDPath.string().c_str(), std::ios::binary);
+	fout.write(reinterpret_cast<const char*>(vcData.data()), vcData.size());
+	fout.close();
 }

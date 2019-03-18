@@ -7,7 +7,6 @@
 //============================================================================
 
 //main stuff
-#include "AudioDatabase.h"
 #include "Configuration.h"
 #include "Manager.h"
 #include "Webserver.h"
@@ -26,11 +25,10 @@ int main() {
 	ClBaseLogger::init(oConfig.getLoggerConfig());
 	//initialize components
 	ClWebserver oWebserver(oConfig.getWebserverConfig());
-	ClAudioDatabase oAudioDb;
 	ClPlayerSpotify oPlayerSpotify(oConfig.getSpotifyConfig());
 	ClReaderFile oReader(oConfig.getReaderConfig());
 	//create manager
-	ClManager oManager(&oReader, &oAudioDb);
+	ClManager oManager(&oReader);
 	oManager.registerPlayer(&oPlayerSpotify);
 	//start threads
 	std::thread oReaderThread = std::thread(&ClReaderFile::start, &oReader);

@@ -8,9 +8,8 @@
 #include "Manager.h"
 #include <chrono>
 
-ClManager::ClManager(ClReaderBase *poReader, ClAudioDatabase *poAudioDb) :
+ClManager::ClManager(ClReaderBase *poReader) :
 m_poReader(poReader),
-m_poAudioDb(poAudioDb),
 m_poActivePlayer(nullptr),
 m_bInterruptRequested(false),
 m_nWaitTime(500)
@@ -22,22 +21,30 @@ void ClManager::start()
 {
 	while (!m_bInterruptRequested)
 	{
-		StReaderMessage stMsg = m_poReader->getMessage();
-		if (playbackNeeded(stMsg))
+		//check if there are messages to write
+		for (auto *poPlayer : m_vpPlayers)
 		{
-			StAudioItem stAudioItem = m_poAudioDb->audioItemFromKey(stMsg.nKey);
-			if (stAudioItem.bIsInitialized)
+			std::vector<unsigned char> vcData = poPlayer->getMessageToWrite();
+			if (vcData.size() > 0)
 			{
-				for (auto poPlayer : m_vpPlayers)
-				{
-					if (poPlayer->getIdentifier() == stAudioItem.sSource)
-					{
-						poPlayer->play(stAudioItem.sAudioInfo.c_str());
-						m_poActivePlayer = poPlayer;
-					}
-				}
-
+				ReaderMessage::StCardData stCardData;
+				stCardData.sPlayerIdentifier = poPlayer->getIdentifier();
+				stCardData.vcPlayerMessage = vcData;
+				m_poReader->requestWrite(stCardData);
 			}
+		}
+        //read message and find a player to play it
+		ReaderMessage::StMessage stMsg = m_poReader->getMessage();
+		if (playbackNeeded(stMsg))
+		{			
+            for (auto poPlayer : m_vpPlayers)
+            {
+                if (poPlayer->getIdentifier() == stMsg.stCardData.sPlayerIdentifier)
+                {
+                    poPlayer->execute(stMsg.stCardData.vcPlayerMessage);
+                    m_poActivePlayer = poPlayer;
+                }
+            }
 			m_stCurrentMsg = stMsg;
 		}
 		else if (playbackToStop(stMsg))
@@ -46,7 +53,7 @@ void ClManager::start()
 				m_poActivePlayer->stop();
 				m_poActivePlayer = nullptr;
 			}
-			m_stCurrentMsg = StReaderMessage{stMsg.eStatus, -1};
+			ReaderMessage::resetMessage(m_stCurrentMsg);
 		}
 		//sleep
 		std::this_thread::sleep_for(m_nWaitTime);
@@ -63,9 +70,11 @@ void ClManager::stop()
 	}
 }
 
-bool ClManager::playbackNeeded(const StReaderMessage& stMsg)
+bool ClManager::playbackNeeded(const ReaderMessage::StMessage& stMsg)
 {
-	return (stMsg.eStatus == EReaderStatus::DETECTED && stMsg.nKey != m_stCurrentMsg.nKey);
+	bool b1 = stMsg.eStatus == ReaderMessage::EStatus::DETECTED;
+	bool b2 = stMsg.stCardData != m_stCurrentMsg.stCardData;
+	return (b1 && b2);
 }
 
 void ClManager::registerPlayer(ClPlayerBase *const poPlayer)
@@ -73,7 +82,7 @@ void ClManager::registerPlayer(ClPlayerBase *const poPlayer)
 	m_vpPlayers.push_back(poPlayer);
 }
 
-bool ClManager::playbackToStop(const StReaderMessage& stMsg)
+bool ClManager::playbackToStop(const ReaderMessage::StMessage& stMsg)
 {
-	return (stMsg.eStatus == EReaderStatus::EMPTY && m_stCurrentMsg.eStatus == EReaderStatus::DETECTED);
+	return (stMsg.eStatus == ReaderMessage::EStatus::EMPTY && m_stCurrentMsg.eStatus == ReaderMessage::EStatus::DETECTED);
 }

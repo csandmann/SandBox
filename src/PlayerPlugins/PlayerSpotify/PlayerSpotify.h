@@ -33,7 +33,6 @@ struct StSpotifyConfig : StPlayerConfig
 	fs::path oCacheDir;
 };
 
-
 class ClPlayerSpotify : public ClPlayerBase
 {
 public:
@@ -41,11 +40,13 @@ public:
 	~ClPlayerSpotify() override;
 	const std::string getIdentifier() const override;
 	const bool restEndpointActive() const override;
-	void play(const std::string &Message) override;
+	void execute(const std::vector<unsigned char> &vcMessage) override;
 	void stop() override;
 	void pause() override;
 	void increaseVolume() override;
 	void decreaseVolume() override;
+    void resume() override;
+    std::vector<unsigned char> getMessageToWrite() override;
 private:
 	//main functionality
 	ClLogger m_oLogger;
@@ -56,6 +57,8 @@ private:
 	//tokens
 	fs::path m_oTokenFilePath;
 	SpotifyTokens::StTokens m_stTokens;
+    //message to write
+    std::vector<unsigned char> m_vcMessageToWrite;
 	//http callbacks
 	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	void cbkSpotifyMainSite(http_request oRequest);

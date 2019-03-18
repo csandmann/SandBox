@@ -35,9 +35,7 @@ jj/G# Prerequisites
 Debug
 
 #stuff
-.cproject
-.project
-.settings
 config.ini
 cache
-build
+CodeLite
+

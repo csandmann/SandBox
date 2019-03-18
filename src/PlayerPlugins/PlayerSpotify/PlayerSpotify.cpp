@@ -45,8 +45,9 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 	return true;
 }
 
-void ClPlayerSpotify::play(const std::string &sMessage)
+void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 {
+	std::string sMessage(reinterpret_cast<const char*>(vcMessage.data()));
 	m_oLogger.info(std::string("play: ") + sMessage);
 	//build body
 	auto oURIs = json::value::array();
@@ -104,6 +105,11 @@ void ClPlayerSpotify::stop()
 	catch (std::exception &e) {
 		m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
 	}
+}
+
+void ClPlayerSpotify::resume()
+{
+    m_oLogger.info("Resuming");
 }
 
 void ClPlayerSpotify::pause()
@@ -290,4 +296,15 @@ void ClPlayerSpotify::refreshAccessToken()
 	} catch(std::exception &e){
 		m_oLogger.error(std::string("refreshAccessToken: Could not perform request: ") + std::string(e.what()));
 	}
+}
+	
+std::vector<unsigned char> ClPlayerSpotify::getMessageToWrite()
+{
+	if (m_vcMessageToWrite.size() == 0)
+	{
+		return m_vcMessageToWrite;
+	}
+	std::vector<unsigned char> vcMessage(std::move(m_vcMessageToWrite));
+	m_vcMessageToWrite.resize(0);
+	return vcMessage;
 }
