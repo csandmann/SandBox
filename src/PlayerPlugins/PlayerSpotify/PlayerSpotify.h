@@ -11,6 +11,7 @@
 #include "../PlayerBase.h"
 #include "../../Logging/Logger.h"
 #include "SpotifyTokens.h"
+#include "SpotifyMessage.h"
 #include <boost/filesystem.hpp>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -54,14 +55,18 @@ private:
 	//listeners
 	http_listener m_oSpotifyAuthCodeReceiver;
 	http_listener m_oSpotifyMainSite;
+	http_listener m_oSpotifyFormReceiver;
 	//tokens
 	fs::path m_oTokenFilePath;
 	SpotifyTokens::StTokens m_stTokens;
     //message to write
     std::vector<unsigned char> m_vcMessageToWrite;
+	//play functionality
+	void playTrack(const std::string &sMessage);
 	//http callbacks
 	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	void cbkSpotifyMainSite(http_request oRequest);
+	void cbkSpotifyFormReceiver(http_request oRequest);
 	//helper functions
 	const utility::string_t buildRedirectUri();
 	const utility::string_t buildSpotifyAuthorizationUri();

@@ -20,6 +20,7 @@ m_oLogger(ClLogger("Spotify")),
 m_oConfig(oConfig),
 m_oSpotifyAuthCodeReceiver(uri(U("http://localhost:8080/spotify/auth_receiver"))),
 m_oSpotifyMainSite(uri(U("http://localhost:8080/spotify"))),
+m_oSpotifyFormReceiver(uri(U("http://localhost:8080/spotify/form_receiver"))),
 m_oTokenFilePath(oConfig.oCacheDir / fs::path("spotifyTokens.txt")),
 m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 {
@@ -28,6 +29,9 @@ m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
 	m_oSpotifyMainSite.open().wait();
 	m_oSpotifyMainSite.support(methods::GET,  [this](http_request request){ this->cbkSpotifyMainSite(request); });
+	m_oSpotifyFormReceiver.open().wait();
+	m_oSpotifyFormReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyFormReceiver(request); });
+	//refresh accesstokens if they exist
 	if (m_stTokens.bIsInitialized)
 	{
 		refreshAccessToken();
@@ -45,9 +49,8 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 	return true;
 }
 
-void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
+void ClPlayerSpotify::playTrack(const std::string &sMessage)
 {
-	std::string sMessage(reinterpret_cast<const char*>(vcMessage.data()));
 	m_oLogger.info(std::string("play: ") + sMessage);
 	//build body
 	auto oURIs = json::value::array();
@@ -77,7 +80,20 @@ void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 		}
 		catch (std::exception &e) {
 			m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
-		}
+		}	
+}
+
+void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
+{
+	SpotifyMessage::StMessage stMsg = SpotifyMessage::deserialize(vcMessage);
+	switch (stMsg.eCommand)
+	{
+		case SpotifyMessage::ECommand::playTrack: 
+			playTrack(stMsg.sArguments);
+			break;
+		default:
+			m_oLogger.error(std::string("execute: Unknown command: ") + std::to_string(static_cast<int>(stMsg.eCommand)) + std::string(" with arguments ") + stMsg.sArguments);
+	}
 }
 
 void ClPlayerSpotify::stop()
@@ -307,4 +323,9 @@ std::vector<unsigned char> ClPlayerSpotify::getMessageToWrite()
 	std::vector<unsigned char> vcMessage(std::move(m_vcMessageToWrite));
 	m_vcMessageToWrite.resize(0);
 	return vcMessage;
+}
+
+void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
+{
+	m_oLogger.debug("cbkSpotifyFormReceiver: Called");
 }
