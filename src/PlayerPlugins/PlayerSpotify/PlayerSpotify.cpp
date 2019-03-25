@@ -30,7 +30,7 @@ m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 	m_oSpotifyMainSite.open().wait();
 	m_oSpotifyMainSite.support(methods::GET,  [this](http_request request){ this->cbkSpotifyMainSite(request); });
 	m_oSpotifyFormReceiver.open().wait();
-	m_oSpotifyFormReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyFormReceiver(request); });
+	m_oSpotifyFormReceiver.support(methods::POST,  [this](http_request request){ this->cbkSpotifyFormReceiver(request); });
 	//refresh accesstokens if they exist
 	if (m_stTokens.bIsInitialized)
 	{
@@ -327,5 +327,24 @@ std::vector<unsigned char> ClPlayerSpotify::getMessageToWrite()
 
 void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 {
-	m_oLogger.debug("cbkSpotifyFormReceiver: Called");
+	m_oLogger.debug("cbkSpotifyFormReceiver: Incoming");
+	auto oRequestArgs = uri::split_query(uri::decode(oRequest.request_uri().query()));
+	SpotifyMessage::ECommand eCmd;
+	if (oRequestArgs.find(U("type")) != oRequestArgs.end())
+	{
+		std::string sType = U2S(oRequestArgs.at(U("type")));
+		if (sType == "track")
+		{
+			eCmd = SpotifyMessage::ECommand::playTrack;
+		}
+	}
+	std::string sMessage;
+	if (oRequestArgs.find(U("type")) != oRequestArgs.end())
+	{
+		sMessage = U2S(oRequestArgs.at(U("message")));
+	}
+	SpotifyMessage::StMessage stMsg;
+	stMsg.eCommand = eCmd;
+	stMsg.sArguments = sMessage;
+	m_vcMessageToWrite = SpotifyMessage::serialize(stMsg);
 }
