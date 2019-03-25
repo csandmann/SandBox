@@ -20,7 +20,8 @@ namespace SpotifyMessage
     {
         playTrack = 0,
 		playAlbum = 1,
-		playPlaylist = 2
+		playPlaylist = 2,
+		changePlayer = 3
     };
     
     struct StMessage

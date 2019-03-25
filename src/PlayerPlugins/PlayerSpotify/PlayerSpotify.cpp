@@ -328,23 +328,54 @@ std::vector<unsigned char> ClPlayerSpotify::getMessageToWrite()
 void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 {
 	m_oLogger.debug("cbkSpotifyFormReceiver: Incoming");
-	auto oRequestArgs = uri::split_query(uri::decode(oRequest.request_uri().query()));
-	SpotifyMessage::ECommand eCmd;
-	if (oRequestArgs.find(U("type")) != oRequestArgs.end())
-	{
-		std::string sType = U2S(oRequestArgs.at(U("type")));
-		if (sType == "track")
+	m_oLogger.debug(U2S(oRequest.to_string()));
+	//split body
+	pplx::task<void> oTask = oRequest.extract_string().then([&](pplx::task<utility::string_t> oBody){
+		auto oRequestArgs = uri::split_query(oBody.get());
+		SpotifyMessage::ECommand eCmd;
+		if (oRequestArgs.find(U("type")) != oRequestArgs.end())
 		{
-			eCmd = SpotifyMessage::ECommand::playTrack;
+			std::string sType = U2S(oRequestArgs.at(U("type")));
+			if (sType == "track")
+			{
+				eCmd = SpotifyMessage::ECommand::playTrack;
+			}
+			else if (sType == "player")
+			{
+				eCmd = SpotifyMessage::ECommand::changePlayer;
+			}
+			else if (sType == "playlist")
+			{
+				eCmd = SpotifyMessage::ECommand::playPlaylist;
+			}
+			else if (sType == "album")
+			{
+				eCmd = SpotifyMessage::ECommand::playAlbum;
+			}
+			else
+			{
+				this->m_oLogger.warn("cbkSpotifyFormReceiver: Could not handle type " + sType);
+				throw std::runtime_error();
+			}
 		}
+		std::string sMessage;
+		if (oRequestArgs.find(U("message")) != oRequestArgs.end())
+		{
+			sMessage = U2S(oRequestArgs.at(U("message")));
+		}
+		SpotifyMessage::StMessage stMsg;
+		stMsg.eCommand = eCmd;
+		stMsg.sArguments = sMessage;
+		this->m_vcMessageToWrite = SpotifyMessage::serialize(stMsg);		
+		this->m_oLogger.debug("Message length: " + std::to_string(m_vcMessageToWrite.size()));
+		});
+	//execute
+	try {
+		oTask.wait();	
 	}
-	std::string sMessage;
-	if (oRequestArgs.find(U("type")) != oRequestArgs.end())
-	{
-		sMessage = U2S(oRequestArgs.at(U("message")));
+	catch(std::exception &e){
+		m_oLogger.error(std::string("cbkSpotifyFormReceiver: Could not handle request request: ") + U2S(oRequest.to_string()));
 	}
-	SpotifyMessage::StMessage stMsg;
-	stMsg.eCommand = eCmd;
-	stMsg.sArguments = sMessage;
-	m_vcMessageToWrite = SpotifyMessage::serialize(stMsg);
+	        
+	//split into parts
 }
