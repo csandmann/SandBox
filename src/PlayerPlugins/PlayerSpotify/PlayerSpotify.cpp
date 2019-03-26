@@ -51,7 +51,7 @@ const bool ClPlayerSpotify::restEndpointActive() const {
 
 void ClPlayerSpotify::playTrack(const std::string &sMessage)
 {
-	m_oLogger.info(std::string("play: ") + sMessage);
+	m_oLogger.info(std::string("playTrack: ") + sMessage);
 	//build body
 	auto oURIs = json::value::array();
 	oURIs[0] = json::value::string(S2U(sMessage));
@@ -67,20 +67,15 @@ void ClPlayerSpotify::playTrack(const std::string &sMessage)
 	http_client oClient(U("https://api.spotify.com/v1/me/player/play"));
 	pplx::task<void> oTask = oClient.request(oRequest)
 		.then([this](http_response response) {
-		if (response.status_code() == status_codes::NoContent) {
-			return;
-		}
-		else {
-			this->m_oLogger.error(std::string("play: Could not parse response ") + U2S(response.to_string()));
- 			return;
-		}; });
-
-		try {
-			oTask.wait();
-		}
-		catch (std::exception &e) {
-			m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
-		}	
+		this->spotifyResponseOk("playTrack", response); 
+		});
+	//execute task
+	try {
+		oTask.wait();
+	}
+	catch (std::exception &e) {
+		m_oLogger.error(std::string("playTrack: Could not perform request: ") + std::string(e.what()));
+	}	
 }
 
 void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
@@ -98,7 +93,7 @@ void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 
 void ClPlayerSpotify::stop()
 {
-	m_oLogger.info(std::string("stopping: "));
+	m_oLogger.info(std::string("stopping"));
 	//build request
 	http_request oRequest(methods::PUT);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
@@ -107,19 +102,30 @@ void ClPlayerSpotify::stop()
 	http_client oClient(U("https://api.spotify.com/v1/me/player/pause"));
 	pplx::task<void> oTask = oClient.request(oRequest)
 		.then([this](http_response response) {
-		if (response.status_code() == status_codes::NoContent) {
-			return;
-		}
-		else {
-			this->m_oLogger.error(std::string("play: Could not parse response ") + U2S(response.to_string()));
-			return;
-		}; });
+			this->spotifyResponseOk("stop", response);
+	});
 
 	try {
 		oTask.wait();
 	}
 	catch (std::exception &e) {
 		m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
+	}
+}
+
+bool ClPlayerSpotify::spotifyResponseOk(const std::string& sFunction, const http_response &oResponse)
+{
+	if (oResponse.status_code() == status_codes::NoContent) 
+	{
+		return true;
+	}
+	else if (oResponse.status_code() == status_codes::Unauthorized || oResponse.status_code() == status_codes::BadRequest) {
+		m_oLogger.error(sFunction + std::string(": Invalid Spotify Authorization"));
+		return false;
+	}
+	else {
+		m_oLogger.error(sFunction + std::string(": Could not parse response ") + U2S(oResponse.to_string()));
+		return false;
 	}
 }
 
@@ -327,11 +333,12 @@ std::vector<unsigned char> ClPlayerSpotify::getMessageToWrite()
 
 void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 {
-	m_oLogger.debug("cbkSpotifyFormReceiver: Incoming");
-	m_oLogger.debug(U2S(oRequest.to_string()));
-	//split body
+	m_oLogger.debug("cbkSpotifyFormReceiver: Incoming request");
+	//get body and process request
 	pplx::task<void> oTask = oRequest.extract_string().then([&](pplx::task<utility::string_t> oBody){
+		//split into arguments
 		auto oRequestArgs = uri::split_query(oBody.get());
+		//get command
 		SpotifyMessage::ECommand eCmd;
 		if (oRequestArgs.find(U("type")) != oRequestArgs.end())
 		{
@@ -355,27 +362,47 @@ void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 			else
 			{
 				this->m_oLogger.warn("cbkSpotifyFormReceiver: Could not handle type " + sType);
-				throw std::runtime_error();
+				return;
 			}
 		}
+		else {
+			return;
+		}
+		//get message
 		std::string sMessage;
 		if (oRequestArgs.find(U("message")) != oRequestArgs.end())
 		{
 			sMessage = U2S(oRequestArgs.at(U("message")));
 		}
+		else {
+			return;
+		}
+		//build message to write
 		SpotifyMessage::StMessage stMsg;
 		stMsg.eCommand = eCmd;
 		stMsg.sArguments = sMessage;
 		this->m_vcMessageToWrite = SpotifyMessage::serialize(stMsg);		
 		this->m_oLogger.debug("Message length: " + std::to_string(m_vcMessageToWrite.size()));
 		});
-	//execute
+	//execute task
+	bool bSuccess = true; 
 	try {
-		oTask.wait();	
+		oTask.wait();
 	}
 	catch(std::exception &e){
 		m_oLogger.error(std::string("cbkSpotifyFormReceiver: Could not handle request request: ") + U2S(oRequest.to_string()));
+		bSuccess = false;
+	}	
+	//send response
+	http_response oResponse(status_codes::OK);
+	oResponse.headers().add(U("Content-Type"), U("text/html"));
+	if (!bSuccess)
+	{
+		oResponse.set_body("<html><head></head><body>Error (see log)!</body></html>");
 	}
-	        
-	//split into parts
+	else
+	{
+		oResponse.set_body("<html><head></head><body>Success!</body></html>");
+	}
+	oRequest.reply(oResponse);        
 }

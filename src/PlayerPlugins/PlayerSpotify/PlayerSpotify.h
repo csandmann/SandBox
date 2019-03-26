@@ -72,6 +72,7 @@ private:
 	const utility::string_t buildSpotifyAuthorizationUri();
 	SpotifyTokens::StTokens getTokensFromAuthCode(const utility::string_t &sAuthCode);
 	void refreshAccessToken();
+	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
 };
 
 
