@@ -20,6 +20,12 @@ namespace ReaderMessage
 			stMsg.stCardData = stClearedData;
 	}
 	
+	void resetCardData(StCardData &stCardData)
+	{
+		stCardData.sPlayerIdentifier = "";
+		stCardData.vcPlayerMessage.resize(0);
+	}
+	
 	std::vector<unsigned char> serializeCardData(const StCardData &stData)
 	{
 		int nIdentifier = strlen(stData.sPlayerIdentifier.c_str());

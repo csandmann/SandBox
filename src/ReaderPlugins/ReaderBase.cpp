@@ -20,7 +20,10 @@ void ClReaderBase::start()
 		//write
 		if (m_stToWrite.vcPlayerMessage.size() > 0)
 		{
-			write(ReaderMessage::serializeCardData(m_stToWrite));
+			bool bSuccess = write(ReaderMessage::serializeCardData(m_stToWrite));
+			if (bSuccess) {
+				ReaderMessage::resetCardData(m_stToWrite);	
+			}
 		}
 		std::this_thread::sleep_for(m_poBaseConfig->nReadInterval);
 	}

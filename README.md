@@ -6,13 +6,12 @@ This is my try to setup a working example of an AudioPlayer
 * boost
 * cpprest
 
-## ToDo:
+## ToDo
 * Player Spotify
-	* Setup spotify webpage
-	* Implement playback of Spotify playlists
+	* Implement playback of Spotify playlists and albums
 	* Implement functionality to switch devices
 	* Automatically refresh access token if no authorization is available
-	* Error handling if track is not found
 	* (All API calls via one parameterized function?)
+	* (Create SpotifyAuthenticationModule)
 * Refactor workflow to load configuration
 * Setup webpage to show log

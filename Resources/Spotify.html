@@ -1,14 +1,15 @@
 <html>
 	<body>
-	<form action="http://localhost:8080/spotify/form_receiver", method="post">
+	<h4>Write Spotify command to tag</h4>
+	<form action="http://%1%:%2%/spotify/form_receiver", method="post">
 		<div>
 			<label for="name">Message</label>
 		        <input type="text" id="Message" name="message">
 			<div>
-				<input type="radio" id="track" name="type" value="track" checked> <label for="track">Track</label>
-				<input type="radio" id="player" name="type" value="player"> <label for="player">Player</label>
-				<input type="radio" id="playlist" name="type" value="playlist"> <label for="playlist">Playlist</label>
-				<input type="radio" id="album" name="type" value="album"> <label for="album">Album</label>
+				<input type="radio" id="track" name="type" value="track" checked> <label for="track">Play track</label>
+				<input type="radio" id="playlist" name="type" value="playlist"> <label for="playlist">Play playlist</label>
+				<input type="radio" id="album" name="type" value="album"> <label for="album">Play album</label>
+				<input type="radio" id="player" name="type" value="player"> <label for="player">Change Player</label>
 			</div>
 		</div>
 			<div class="button">
@@ -16,5 +17,9 @@
 			</div>
 
 	</form>
-	<body>
+	<hr>
+	<div>
+		<a href="%3%"> Connect Spotify account </a>
+	</div>
+<body>
 </html>

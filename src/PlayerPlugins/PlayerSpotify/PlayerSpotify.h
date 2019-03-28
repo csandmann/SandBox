@@ -18,6 +18,8 @@
 #include <cpprest/http_client.h>
 #include <cpprest/json.h>
 #include <cpprest/uri_builder.h>
+#include <boost/format.hpp>
+
 
 using namespace web;
 using namespace web::http;
@@ -73,6 +75,7 @@ private:
 	SpotifyTokens::StTokens getTokensFromAuthCode(const utility::string_t &sAuthCode);
 	void refreshAccessToken();
 	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
+	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
 };
 
 

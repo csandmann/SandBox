@@ -31,7 +31,7 @@ public:
 	void requestWrite(const ReaderMessage::StCardData &stCardData);
 protected:
 	virtual const std::vector<unsigned char> read() = 0;
-	virtual void write(const std::vector<unsigned char> &stMessage) = 0;
+	virtual bool write(const std::vector<unsigned char> &stMessage) = 0;
 	ReaderMessage::StMessage m_stReaderMessage;
 	ReaderMessage::StCardData m_stToWrite;
 	const StReaderConfig *m_poBaseConfig;

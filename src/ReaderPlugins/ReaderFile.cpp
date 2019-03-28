@@ -37,9 +37,19 @@ const std::vector<unsigned char> ClReaderFile::read()
 	return vcData;
 }
 
-void ClReaderFile::write(const std::vector<unsigned char> &vcData)
+bool ClReaderFile::write(const std::vector<unsigned char> &vcData)
 {
-	std::ofstream fout(m_oRFIDPath.string().c_str(), std::ios::binary);
-	fout.write(reinterpret_cast<const char*>(vcData.data()), vcData.size());
-	fout.close();
+	try
+	{
+		m_oLogger.debug("writing message");
+		std::ofstream fout(m_oRFIDPath.string().c_str(), std::ios::binary);
+		fout.write(reinterpret_cast<const char*>(vcData.data()), vcData.size());
+		fout.close();
+		return true;	
+	}
+	catch(const std::exception &e)
+	{
+		m_oLogger.debug(std::string("error ") + e.what());
+		return false;
+	}
 }

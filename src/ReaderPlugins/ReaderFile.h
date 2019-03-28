@@ -21,7 +21,7 @@ public:
 	~ClReaderFile();
 private:
 	const std::vector<unsigned char> read() override;
-	void write(const std::vector<unsigned char> &stMsg) override;
+	bool write(const std::vector<unsigned char> &stMsg) override;
 	const fs::path m_oRFIDPath;
 	const StReaderConfig m_oReaderConfig;
 	ClLogger m_oLogger;

@@ -28,6 +28,7 @@ namespace ReaderMessage
 	bool operator ==(const StCardData& oThis, const StCardData& oOther);
 	bool operator !=(const StCardData& oThis, const StCardData& oOther);
 	std::vector<unsigned char> serializeCardData(const StCardData &stData);
+	void resetCardData(StCardData &stCardData);
 
 	
 	struct StMessage

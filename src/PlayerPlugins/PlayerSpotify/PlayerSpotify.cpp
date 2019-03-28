@@ -7,6 +7,7 @@
 
 #include "PlayerSpotify.h"
 #include <sstream>
+#include <fstream>
 
 #define S2U(x) utility::conversions::to_string_t(x)
 #define U2S(x) utility::conversions::to_utf8string(x)
@@ -235,14 +236,38 @@ void ClPlayerSpotify::cbkSpotifyAuthCodeReceiver(http_request oRequest)
 	oRequest.reply(oResponse);
 }
 
+boost::format ClPlayerSpotify::readHtmlTemplateFromFile(const std::string &sFilePath)
+{
+	std::vector<char> vcOut;
+	try
+	{
+		std::ifstream fsIn;
+		fsIn.open(sFilePath.c_str(), std::ios::in);
+		fsIn.seekg(0, std::ios::end);
+		auto nSize = static_cast<int>(fsIn.tellg());
+		fsIn.seekg(0, std::ios::beg);
+		//read
+		vcOut.resize(nSize);
+		fsIn.read(vcOut.data(), nSize);
+		return boost::format(vcOut.data());	
+	}
+	catch (...)
+	{
+		m_oLogger.error("readHtmlTemplateFromFile: Could not read resource " + sFilePath);
+		return boost::format();
+	}
+}
+
 void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 {
 	//send Website response
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
-	std::stringstream ss;
-	ss << "<html> <head></head><body><a href=\"" << U2S(buildSpotifyAuthorizationUri()) << "\"> Connect Account </a> </body> </html>";
-	oResponse.set_body(ss.str());
+	boost::format oWebsite = readHtmlTemplateFromFile("../Resources/Spotify.html");
+	oWebsite % m_oConfig.sHostname % m_oConfig.nPort % U2S(buildSpotifyAuthorizationUri());
+	//std::stringstream ss;ss.str()
+	//ss << "<html> <head></head><body><a href=\"" << U2S(buildSpotifyAuthorizationUri()) << "\"> Connect Account </a> </body> </html>";
+	oResponse.set_body(S2U(oWebsite.str()));
 	oRequest.reply(oResponse);
 }
 
@@ -382,7 +407,6 @@ void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 		stMsg.eCommand = eCmd;
 		stMsg.sArguments = sMessage;
 		this->m_vcMessageToWrite = SpotifyMessage::serialize(stMsg);		
-		this->m_oLogger.debug("Message length: " + std::to_string(m_vcMessageToWrite.size()));
 		});
 	//execute task
 	bool bSuccess = true; 
