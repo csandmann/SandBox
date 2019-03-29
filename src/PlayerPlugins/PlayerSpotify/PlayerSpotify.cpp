@@ -92,47 +92,67 @@ void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 	}
 }
 
-void ClPlayerSpotify::getDeviceList()
+std::string ClPlayerSpotify::updateActiveDevice()
 {
-	m_oLogger.info(std::string("getDeviceList: "));
+	m_oLogger.info(std::string("updateActiveDevice: "));
 	//build request
 	http_request oRequest(methods::GET);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
 	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_stTokens.sAccessToken));
 	//make request
 	http_client oClient(U("https://api.spotify.com/v1/me/player/devices"));
-	pplx::task<void> oTask = oClient.request(oRequest)
+	pplx::task<std::vector<SpotifyMessage::StSpotifyDevice> > oTask = oClient.request(oRequest)
 		.then([&](http_response response) -> pplx::task<json::value> {
 	            if(response.status_code() == status_codes::OK){
 	                return response.extract_json();
 	            } else {
-	            	this->m_oLogger.error(std::string("getDeviceList: Could not parse response ") + U2S(response.to_string()));
+	            	this->m_oLogger.error(std::string("updateActiveDevice: Could not parse response ") + U2S(response.to_string()));
 	            	return pplx::task_from_result(json::value());
 	            };
 		})
 		.then([&](pplx::task<json::value> oPreviousTask)
 		{	            
+			std::vector<SpotifyMessage::StSpotifyDevice> voDeviceList;
 			try{
 					const json::value &oJson = oPreviousTask.get();
-					const auto oArray = oJson.as_array();
-					for (unsigned int i = 0; i<oArray.size(); ++i)
+					const auto oRet = oJson.as_object();
+					const auto oJsonDeviceList = oRet.at(U("devices"));
+					for (unsigned int i = 0; i<oJsonDeviceList.size(); ++i)
 					{
-						const auto oDevice = oArray.at(i).as_object();
-						std::cout << oDevice.at(U("id")).as_string().c_str() << std::endl;
+						const auto oDevice = oJsonDeviceList.at(i).as_object();
+						SpotifyMessage::StSpotifyDevice stDevice{oDevice.at(U("id")).as_string().c_str(), oDevice.at(U("name")).as_string().c_str()};
+						voDeviceList.push_back(stDevice);
 					}
-					//initialize tokens
 	            }
 			catch(const http_exception &e){
-	            	this->m_oLogger.error(std::string("getDeviceList: Could not unpack JSON response: ") + std::string(e.what()));
+	            	this->m_oLogger.error(std::string("updateActiveDevice: Could not unpack JSON response: ") + std::string(e.what()));
 			}
+			return voDeviceList;
 		});
-	//execute task
+	//execute task and get response
 	try {
 		oTask.wait();
 	}
 	catch (std::exception &e) {
-		m_oLogger.error(std::string("playTrack: Could not perform request: ") + std::string(e.what()));
+		m_oLogger.error(std::string("getDeviceList: Could not perform request: ") + std::string(e.what()));
 	}
+	std::vector<SpotifyMessage::StSpotifyDevice> voDeviceList = oTask.get();
+	//get correct device
+	std::string sAllDevices;
+	for (const auto &stDevice : voDeviceList)
+	{
+		if (m_oConfig.sDevice == stDevice.sName)
+		{
+			m_stActiveDevice = stDevice;
+			std::cout << "Found!" << std::endl;
+		}
+		sAllDevices += stDevice.sName;
+		if (stDevice.sName != voDeviceList.back().sName)
+		{
+			sAllDevices += ", ";
+		}
+	}
+	return sAllDevices;
 }
 
 void ClPlayerSpotify::stop()
@@ -303,12 +323,12 @@ boost::format ClPlayerSpotify::readHtmlTemplateFromFile(const std::string &sFile
 
 void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 {
-	getDeviceList();
+	std::string sAllDevices = updateActiveDevice();
 	//send Website response
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
 	boost::format oWebsite = readHtmlTemplateFromFile("../Resources/Spotify.html");
-	oWebsite % m_oConfig.sHostname % m_oConfig.nPort % U2S(buildSpotifyAuthorizationUri());
+	oWebsite % m_oConfig.sHostname % m_oConfig.nPort % sAllDevices % U2S(buildSpotifyAuthorizationUri());
 	//std::stringstream ss;ss.str()
 	//ss << "<html> <head></head><body><a href=\"" << U2S(buildSpotifyAuthorizationUri()) << "\"> Connect Account </a> </body> </html>";
 	oResponse.set_body(S2U(oWebsite.str()));

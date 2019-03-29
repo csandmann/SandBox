@@ -3,7 +3,7 @@
 	<h4>Write Spotify command to tag</h4>
 	<form action="http://%1%:%2%/spotify/form_receiver", method="post">
 		<div>
-			<label for="name">Message</label>
+			<label>Message</label>
 		        <input type="text" id="Message" name="message">
 			<div>
 				<input type="radio" id="track" name="type" value="track" checked> <label for="track">Play track</label>
@@ -17,9 +17,10 @@
 			</div>
 
 	</form>
+	<label>Available Devices: %3%</label>
 	<hr>
 	<div>
-		<a href="%3%"> Connect Spotify account </a>
+		<a href="%4%"> Connect Spotify account </a>
 	</div>
 <body>
 </html>

@@ -34,6 +34,7 @@ struct StSpotifyConfig : StPlayerConfig
 	std::string sHostname;
 	unsigned int nPort;
 	fs::path oCacheDir;
+	std::string sDevice;
 };
 
 class ClPlayerSpotify : public ClPlayerBase
@@ -64,7 +65,7 @@ private:
     //message to write
     std::vector<unsigned char> m_vcMessageToWrite;
 	//
-	std::vector<SpotifyMessage::StSpotifyDevice> m_voDevices;
+	SpotifyMessage::StSpotifyDevice m_stActiveDevice;
 	//play functionality
 	void playTrack(const std::string &sMessage);
 	//http callbacks
@@ -78,7 +79,7 @@ private:
 	void refreshAccessToken();
 	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
-	void getDeviceList();
+	std::string updateActiveDevice();
 };
 
 
