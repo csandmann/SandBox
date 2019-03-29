@@ -63,6 +63,8 @@ private:
 	SpotifyTokens::StTokens m_stTokens;
     //message to write
     std::vector<unsigned char> m_vcMessageToWrite;
+	//
+	std::vector<SpotifyMessage::StSpotifyDevice> m_voDevices;
 	//play functionality
 	void playTrack(const std::string &sMessage);
 	//http callbacks
@@ -76,6 +78,7 @@ private:
 	void refreshAccessToken();
 	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
+	void getDeviceList();
 };
 
 

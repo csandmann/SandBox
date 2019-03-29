@@ -15,6 +15,11 @@
 
 namespace SpotifyMessage
 {
+	struct StSpotifyDevice
+	{
+		std::string sId;
+		std::string sName;
+	};
     
     enum class ECommand
     {
