@@ -36,6 +36,7 @@ m_stTokens(SpotifyTokens::readTokens(m_oTokenFilePath.string()))
 	if (m_stTokens.bIsInitialized)
 	{
 		refreshAccessToken();
+		updateActiveDevice();
 	}
 }
 
@@ -65,7 +66,7 @@ void ClPlayerSpotify::playTrack(const std::string &sMessage)
 	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_stTokens.sAccessToken));
 	oRequest.set_body(S2U(sParameters));
 	//make request
-	http_client oClient(U("https://api.spotify.com/v1/me/player/play"));
+	http_client oClient(U("https://api.spotify.com/v1/me/player/play?device_id=") + U(m_stActiveDevice.sId));
 	pplx::task<void> oTask = oClient.request(oRequest)
 		.then([this](http_response response) {
 		this->spotifyResponseOk("playTrack", response); 
@@ -139,18 +140,22 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	std::vector<SpotifyMessage::StSpotifyDevice> voDeviceList = oTask.get();
 	//get correct device
 	std::string sAllDevices;
+	bool bPlaybackDeviceFound = false;
 	for (const auto &stDevice : voDeviceList)
 	{
 		if (m_oConfig.sDevice == stDevice.sName)
 		{
 			m_stActiveDevice = stDevice;
-			std::cout << "Found!" << std::endl;
+			bPlaybackDeviceFound = true;
 		}
 		sAllDevices += stDevice.sName;
 		if (stDevice.sName != voDeviceList.back().sName)
 		{
 			sAllDevices += ", ";
 		}
+	}
+	if (!bPlaybackDeviceFound) {
+		m_oLogger.error("getDeviceList: Playback device could not be determined!");
 	}
 	return sAllDevices;
 }
