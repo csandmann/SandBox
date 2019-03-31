@@ -12,6 +12,7 @@
 #include "../../Logging/Logger.h"
 #include "SpotifyTokens.h"
 #include "SpotifyMessage.h"
+#include "SpotifyAuthorizationModule.h"
 #include <boost/filesystem.hpp>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -36,6 +37,7 @@ struct StSpotifyConfig : StPlayerConfig
 	fs::path oCacheDir;
 	std::string sDevice;
 };
+StSpotifyAuthorizationConfig authConfigFromSpotifyConfig(const StSpotifyConfig &stSpotifyConfig);
 
 class ClPlayerSpotify : public ClPlayerBase
 {
@@ -56,12 +58,10 @@ private:
 	ClLogger m_oLogger;
 	const StSpotifyConfig m_oConfig;
 	//listeners
-	http_listener m_oSpotifyAuthCodeReceiver;
 	http_listener m_oSpotifyMainSite;
 	http_listener m_oSpotifyFormReceiver;
-	//tokens
-	fs::path m_oTokenFilePath;
-	SpotifyTokens::StTokens m_stTokens;
+	//autho module
+	ClSpotifyAuthorizationModule m_oAuthModule;
     //message to write
     std::vector<unsigned char> m_vcMessageToWrite;
 	//
@@ -69,14 +69,10 @@ private:
 	//play functionality
 	void playTrack(const std::string &sMessage);
 	//http callbacks
-	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	void cbkSpotifyMainSite(http_request oRequest);
 	void cbkSpotifyFormReceiver(http_request oRequest);
 	//helper functions
 	const utility::string_t buildRedirectUri();
-	const utility::string_t buildSpotifyAuthorizationUri();
-	SpotifyTokens::StTokens getTokensFromAuthCode(const utility::string_t &sAuthCode);
-	void refreshAccessToken();
 	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
 	std::string updateActiveDevice();
