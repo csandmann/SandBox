@@ -60,7 +60,7 @@ private:
 	//listeners
 	http_listener m_oSpotifyMainSite;
 	http_listener m_oSpotifyFormReceiver;
-	//autho module
+	//auth module
 	ClSpotifyAuthorizationModule m_oAuthModule;
     //message to write
     std::vector<unsigned char> m_vcMessageToWrite;
@@ -68,12 +68,15 @@ private:
 	SpotifyMessage::StSpotifyDevice m_stActiveDevice;
 	//play functionality
 	void playTrack(const std::string &sMessage);
+	void playContext(const std::string &sMessage);
+	
 	//http callbacks
 	void cbkSpotifyMainSite(http_request oRequest);
 	void cbkSpotifyFormReceiver(http_request oRequest);
 	//helper functions
+	void executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody = "", const bool bRepeatRequestIfFailed = true);
 	const utility::string_t buildRedirectUri();
-	bool spotifyResponseOk(const std::string &sFunction, const http_response &oResponse);
+	bool spotifyResponseOk(const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
 	std::string updateActiveDevice();
 };

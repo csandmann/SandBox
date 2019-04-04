@@ -7,7 +7,6 @@ m_oSpotifyAuthCodeReceiver(uri(U("http://localhost:") + U(std::to_string(oConfig
 m_stTokens(SpotifyTokens::readTokens(oConfig.sTokenFilePath))
 {	
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
-	std::cout << m_oSpotifyAuthCodeReceiver.uri().to_string().c_str() << std::endl;;
 	m_oSpotifyAuthCodeReceiver.open().wait();
 	if (m_stTokens.bIsInitialized)
 	{

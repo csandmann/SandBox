@@ -65,25 +65,20 @@ void ClPlayerSpotify::playTrack(const std::string &sMessage)
 	oURIs[0] = json::value::string(S2U(sMessage));
 	auto oBody = json::value::object();
 	oBody[U("uris")] = oURIs;
-	auto sParameters = oBody.serialize();
-	//build request
-	http_request oRequest(methods::PUT);
-	oRequest.headers().add(U("Content-Type"), U("application/json"));
-	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
-	oRequest.set_body(S2U(sParameters));
+	std::string sBody = U2S(oBody.serialize());
 	//make request
-	http_client oClient(U("https://api.spotify.com/v1/me/player/play?device_id=") + U(m_stActiveDevice.sId));
-	pplx::task<void> oTask = oClient.request(oRequest)
-		.then([this](http_response response) {
-		this->spotifyResponseOk("playTrack", response); 
-		});
-	//execute task
-	try {
-		oTask.wait();
-	}
-	catch (std::exception &e) {
-		m_oLogger.error(std::string("playTrack: Could not perform request: ") + std::string(e.what()));
-	}	
+	executeSpotifyCommand("https://api.spotify.com/v1/me/player/play", methods::PUT, sBody);
+}
+
+void ClPlayerSpotify::playContext(const std::string &sMessage)
+{
+	m_oLogger.info(std::string("playContext: ") + sMessage);
+	//build body
+	auto oBody = json::value::object();
+	oBody[U("context_uri")] = json::value(S2U(sMessage));
+	utility::string_t sBody = U2S(oBody.serialize());
+	//make request
+	executeSpotifyCommand("https://api.spotify.com/v1/me/player/play", methods::PUT, sBody);
 }
 
 void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
@@ -94,14 +89,31 @@ void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 		case SpotifyMessage::ECommand::playTrack: 
 			playTrack(stMsg.sArguments);
 			break;
+		case SpotifyMessage::ECommand::playAlbum:
+		{
+			playContext(stMsg.sArguments);
+			break;
+		}
+		case SpotifyMessage::ECommand::playPlaylist:
+		{
+			playContext(stMsg.sArguments);
+			break;
+		}
+		case SpotifyMessage::ECommand::changePlayer:
+		{
+			m_stActiveDevice.sName = stMsg.sArguments;
+			m_stActiveDevice.sId = "";
+			updateActiveDevice();
+			break;
+		}
 		default:
-			m_oLogger.error(std::string("execute: Unknown command: ") + std::to_string(static_cast<int>(stMsg.eCommand)) + std::string(" with arguments ") + stMsg.sArguments);
+			m_oLogger.error("execute: Unknown command: " + std::to_string(static_cast<int>(stMsg.eCommand)) + " with arguments " + stMsg.sArguments);
 	}
 }
 
 std::string ClPlayerSpotify::updateActiveDevice()
 {
-	m_oLogger.info(std::string("updateActiveDevice: "));
+	m_oLogger.info("updateActiveDevice: Activating " + m_oConfig.sDevice);
 	//build request
 	http_request oRequest(methods::GET);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
@@ -112,7 +124,12 @@ std::string ClPlayerSpotify::updateActiveDevice()
 		.then([&](http_response response) -> pplx::task<json::value> {
 	            if(response.status_code() == status_codes::OK){
 	                return response.extract_json();
-	            } else {
+	            }
+				else if(response.status_code() == status_codes::NotAuthorized){
+					this->m_oLogger.warn("updateActiveDevice: Not authorized. Refreshing Access Token ");
+					this->m_oAuthModule.refreshAccessToken();
+				} 
+				else {
 	            	this->m_oLogger.error(std::string("updateActiveDevice: Could not parse response ") + U2S(response.to_string()));
 	            	return pplx::task_from_result(json::value());
 	            };
@@ -161,7 +178,7 @@ std::string ClPlayerSpotify::updateActiveDevice()
 		}
 	}
 	if (!bPlaybackDeviceFound) {
-		m_oLogger.error("getDeviceList: Playback device could not be determined!");
+		m_oLogger.error("getDeviceList: " + m_oConfig.sDevice + " was not found in active devices. Is it turned on?");
 	}
 	return sAllDevices;
 }
@@ -169,37 +186,33 @@ std::string ClPlayerSpotify::updateActiveDevice()
 void ClPlayerSpotify::stop()
 {
 	m_oLogger.info(std::string("stopping"));
-	//build request
-	http_request oRequest(methods::PUT);
-	oRequest.headers().add(U("Content-Type"), U("application/json"));
-	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
-	//make request
-	http_client oClient(U("https://api.spotify.com/v1/me/player/pause"));
-	pplx::task<void> oTask = oClient.request(oRequest)
-		.then([this](http_response response) {
-			this->spotifyResponseOk("stop", response);
-	});
-
-	try {
-		oTask.wait();
-	}
-	catch (std::exception &e) {
-		m_oLogger.error(std::string("play: Could not perform request: ") + std::string(e.what()));
-	}
+	executeSpotifyCommand("https://api.spotify.com/v1/me/player/pause", methods::PUT);
 }
 
-bool ClPlayerSpotify::spotifyResponseOk(const std::string& sFunction, const http_response &oResponse)
+bool ClPlayerSpotify::spotifyResponseOk(const http_response &oResponse)
 {
 	if (oResponse.status_code() == status_codes::NoContent) 
 	{
 		return true;
 	}
-	else if (oResponse.status_code() == status_codes::Unauthorized || oResponse.status_code() == status_codes::BadRequest) {
-		m_oLogger.error(sFunction + std::string(": Invalid Spotify Authorization"));
+	else if (oResponse.status_code() == status_codes::Unauthorized)
+	{
+		m_oLogger.error("spotifyResponseOk: Unautorized");
+		m_oAuthModule.refreshAccessToken();
+		return false;
+	}
+	else if (oResponse.status_code() == status_codes::BadRequest) 
+	{
+		m_oLogger.error("spotifyResponseOk: Bad request");
+		return false;
+	}
+	else if (oResponse.status_code() == status_codes::NotFound)
+	{
+		m_oLogger.error("spotifyResponseOk: Not found. Is the active device correct?");
 		return false;
 	}
 	else {
-		m_oLogger.error(sFunction + std::string(": Could not parse response ") + U2S(oResponse.to_string()));
+		m_oLogger.error("spotifyResponseOk: Could not parse response " + U2S(oResponse.to_string()));
 		return false;
 	}
 }
@@ -346,4 +359,33 @@ void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 		oResponse.set_body("<html><head></head><body>Success!</body></html>");
 	}
 	oRequest.reply(oResponse);        
+}
+
+void ClPlayerSpotify::executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody/*=""*/, const bool bRepeatRequestIfFailed/*=true*/)
+{
+	//build request
+	http_request oRequest(eMethod);
+	oRequest.headers().add(U("Content-Type"), U("application/json"));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
+	oRequest.set_body(S2U(sBody));
+	//make request
+	http_client oClient(S2U(sUri) + U("?device_id=") + U(m_stActiveDevice.sId));
+	pplx::task<bool> oTask = oClient.request(oRequest)
+		.then([&](http_response response) {
+		return this->spotifyResponseOk(response); 
+		});
+	//execute task
+	bool bSuccess = false;
+	try {
+		oTask.wait();
+		bSuccess = oTask.get();
+	}
+	catch (std::exception &e) {
+		m_oLogger.error("executeSpotifyCommand: Could not perform request: " + std::string(e.what()));
+	}
+	if (!bSuccess && bRepeatRequestIfFailed) {
+		m_oLogger.warn("executeSpotifyCommand: Repeating request");
+			executeSpotifyCommand(sUri, eMethod, sBody, false);
+	}
+	
 }
