@@ -22,7 +22,7 @@ StSpotifyAuthorizationConfig authConfigFromSpotifyConfig(const StSpotifyConfig &
 	stAuthConfig.sClientId = stSpotifyConfig.sClientId;
 	stAuthConfig.sClientSecret = stSpotifyConfig.sClientSecret;
 	stAuthConfig.sHostname = stSpotifyConfig.sHostname;
-	stAuthConfig.sTokenFilePath = (stSpotifyConfig.oCacheDir / fs::path("spotifyTokens.txt")).str();
+	stAuthConfig.sTokenFilePath = (stSpotifyConfig.oCacheDir / fs::path("spotifyTokens.txt")).string();
 	return stAuthConfig;
 }
 
@@ -40,9 +40,8 @@ m_oAuthModule(authConfigFromSpotifyConfig(oConfig))
 	m_oSpotifyFormReceiver.open().wait();
 	m_oSpotifyFormReceiver.support(methods::POST,  [this](http_request request){ this->cbkSpotifyFormReceiver(request); });
 	//refresh accesstokens if they exist
-	if (m_oAuthModule.getTokens().bIsInitialized)
+	if (m_oAuthModule.isInitialized())
 	{
-		m_oAuthModule.refreshAccessToken();
 		updateActiveDevice();
 	}
 }
@@ -70,7 +69,7 @@ void ClPlayerSpotify::playTrack(const std::string &sMessage)
 	//build request
 	http_request oRequest(methods::PUT);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
-	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getTokens().sAccessToken));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
 	oRequest.set_body(S2U(sParameters));
 	//make request
 	http_client oClient(U("https://api.spotify.com/v1/me/player/play?device_id=") + U(m_stActiveDevice.sId));
@@ -106,7 +105,7 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	//build request
 	http_request oRequest(methods::GET);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
-	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getTokens().sAccessToken));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
 	//make request
 	http_client oClient(U("https://api.spotify.com/v1/me/player/devices"));
 	pplx::task<std::vector<SpotifyMessage::StSpotifyDevice> > oTask = oClient.request(oRequest)
@@ -173,7 +172,7 @@ void ClPlayerSpotify::stop()
 	//build request
 	http_request oRequest(methods::PUT);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
-	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getTokens().sAccessToken));
+	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
 	//make request
 	http_client oClient(U("https://api.spotify.com/v1/me/player/pause"));
 	pplx::task<void> oTask = oClient.request(oRequest)

@@ -8,6 +8,7 @@
 #ifndef SRC_PLAYERPLUGINS_PLAYERSPOTIFY_SPOTIFYAUTHORIZATIONMODULE_H_
 #define SRC_PLAYERPLUGINS_PLAYERSPOTIFY_SPOTIFYAUTHORIZATIONMODULE_H_
 
+#include "../../Logging/Logger.h"
 #include "SpotifyTokens.h"
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
@@ -18,6 +19,7 @@
 
 using namespace web;
 using namespace web::http;
+using namespace web::http::client;
 using namespace web::http::experimental::listener;
 
 #define S2U(x) utility::conversions::to_string_t(x)
@@ -35,9 +37,10 @@ struct StSpotifyAuthorizationConfig
 class ClSpotifyAuthorizationModule
 {
 public:
-	ClSpotifyAuthorizationModule::ClSpotifyAuthorizationModule(const StSpotifyAuthorizationConfig m_oConfig);
+	ClSpotifyAuthorizationModule(const StSpotifyAuthorizationConfig m_oConfig);
 	void refreshAccessToken();
-	SpotifyTokens::StTokens getTokens();
+	std::string getAccessToken();
+	bool isInitialized();
 	const utility::string_t getSpotifyAuthorizationUri();
 
 private:
@@ -45,13 +48,13 @@ private:
 	ClLogger m_oLogger;
 	StSpotifyAuthorizationConfig m_oConfig;
 	http_listener m_oSpotifyAuthCodeReceiver;
-	const SpotifyTokens::StTokens m_stTokens; 
+	SpotifyTokens::StTokens m_stTokens; 
 	//functions
-	SpotifyTokens::StTokens getTokensFromAuthCode(const utility::string_t &sAuthCode);
+	void getTokensFromAuthCode(const utility::string_t &sAuthCode);
 	void cbkSpotifyAuthCodeReceiver(http_request oRequest);
 	const utility::string_t buildRedirectUri();
 
-}
+};
 
 
 #endif /*SRC_PLAYERPLUGINS_PLAYERSPOTIFY_SPOTIFYAUTHORIZATIONMODULE_H_*/

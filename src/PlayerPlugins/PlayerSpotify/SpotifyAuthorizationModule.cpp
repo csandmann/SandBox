@@ -1,21 +1,23 @@
+#include "SpotifyAuthorizationModule.h"
+
 ClSpotifyAuthorizationModule::ClSpotifyAuthorizationModule(const StSpotifyAuthorizationConfig oConfig):
 m_oLogger(ClLogger("SpotifyAuthorizationModule")),
 m_oConfig(oConfig),
-m_oSpotifyAuthCodeReceiver(uri(U("http://localhost") + U(std::to_string(oConfig.nPort)) + U("/spotify/auth_receiver"))),
+m_oSpotifyAuthCodeReceiver(uri(U("http://localhost:") + U(std::to_string(oConfig.nPort)) + U("/spotify/auth_receiver"))),
 m_stTokens(SpotifyTokens::readTokens(oConfig.sTokenFilePath))
 {	
-	m_oSpotifyAuthCodeReceiver.open().wait();
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
+	std::cout << m_oSpotifyAuthCodeReceiver.uri().to_string().c_str() << std::endl;;
+	m_oSpotifyAuthCodeReceiver.open().wait();
 	if (m_stTokens.bIsInitialized)
 	{
 		refreshAccessToken();
 	}
 }
 
-SpotifyTokens::StTokens ClSpotifyAuthorizationModule::getTokensFromAuthCode(const utility::string_t &sAuthCode)
+void ClSpotifyAuthorizationModule::getTokensFromAuthCode(const utility::string_t &sAuthCode)
 {
 	m_oLogger.debug(std::string("getTokensFromAuthCode: AuthCode=") + U2S(sAuthCode));
-	SpotifyTokens::StTokens stTokens;
 	//build body of request
 	uri_builder oParameters;
 	oParameters.append_query(U("grant_type"), U("authorization_code"))
@@ -43,10 +45,10 @@ SpotifyTokens::StTokens ClSpotifyAuthorizationModule::getTokensFromAuthCode(cons
 	                const json::value &oJson = previousTask.get();
 					const auto oObject = oJson.as_object();
 					//initialize tokens
-					m_stTokens.bIsInitialized = true;
-					m_stTokens.sAccessToken = U2S(oObject.at(U("access_token")).as_string());
-					m_stTokens.sRefreshToken = U2S(oObject.at(U("refresh_token")).as_string());
-					SpotifyTokens::dumpTokens(m_stTokens, m_oConfig.sTokenFilePath);
+					this->m_stTokens.bIsInitialized = true;
+					this->m_stTokens.sAccessToken = U2S(oObject.at(U("access_token")).as_string());
+					this->m_stTokens.sRefreshToken = U2S(oObject.at(U("refresh_token")).as_string());
+					SpotifyTokens::dumpTokens(this->m_stTokens, this->m_oConfig.sTokenFilePath);
 	            }
 	            catch(const http_exception &e){
 	            	this->m_oLogger.error(std::string("getTokensFromAuthCode: Could not unpack JSON response: ") + std::string(e.what()));
@@ -71,7 +73,7 @@ void ClSpotifyAuthorizationModule::cbkSpotifyAuthCodeReceiver(http_request oRequ
 	auto oRequestArgs = uri::split_query(uri::decode(oRequest.request_uri().query()));
 	if (oRequestArgs.find(U("code")) != oRequestArgs.end())
 	{
-		m_stTokens = getTokensFromAuthCode(oRequestArgs.at(U("code")));
+		getTokensFromAuthCode(oRequestArgs.at(U("code")));
 	}
 	else if (oRequestArgs.find(U("error")) != oRequestArgs.end())
 	{
@@ -111,15 +113,15 @@ const utility::string_t ClSpotifyAuthorizationModule::getSpotifyAuthorizationUri
 	return sAuthUri;
 }
 
-void ClSpotifyAuthorizationModule::refreshAccessToken(SpotifyTokens::StTokens &stTokens)
+void ClSpotifyAuthorizationModule::refreshAccessToken()
 {
 	//build body of request
 	uri_builder oParameters;
 	oParameters.append_query(U("grant_type"), U("refresh_token"))
-			   .append_query(U("refresh_token"), S2U(stTokens.sRefreshToken));
+			   .append_query(U("refresh_token"), S2U(m_stTokens.sRefreshToken));
 	auto sParameters = oParameters.to_string().substr(2); //ignores leading /? of oParameters
 	//get base64-encoded authorization
-	auto sDecodedAuth = utility::conversions::to_utf8string(m_sClientId + std::string(":") + m_sClientSecret);
+	auto sDecodedAuth = utility::conversions::to_utf8string(m_oConfig.sClientId + std::string(":") + m_oConfig.sClientSecret);
 	std::vector<unsigned char> vcAuthorization(sDecodedAuth.size());
 	std::memcpy(vcAuthorization.data(), sDecodedAuth.c_str(), sDecodedAuth.size());
 	auto sEncodedAuth = utility::conversions::to_base64(vcAuthorization);
@@ -159,9 +161,9 @@ void ClSpotifyAuthorizationModule::refreshAccessToken(SpotifyTokens::StTokens &s
 	}
 }
 
-SpotifyTokens::StTokens& ClSpotifyAuthorizationModule::getTokens()
+std::string ClSpotifyAuthorizationModule::getAccessToken()
 {
-	return m_stTokens;
+	return m_stTokens.sAccessToken;
 }
 
 const utility::string_t ClSpotifyAuthorizationModule::buildRedirectUri()
@@ -173,4 +175,8 @@ const utility::string_t ClSpotifyAuthorizationModule::buildRedirectUri()
 		.set_port(m_oConfig.nPort)
 		.set_path(m_oSpotifyAuthCodeReceiver.uri().path());
 	return oRedirectUri.to_string();
+}
+bool ClSpotifyAuthorizationModule::isInitialized()
+{
+	return m_stTokens.bIsInitialized;
 }
