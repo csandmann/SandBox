@@ -125,9 +125,10 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	            if(response.status_code() == status_codes::OK){
 	                return response.extract_json();
 	            }
-				else if(response.status_code() == status_codes::NotAuthorized){
+				else if(response.status_code() == status_codes::Unauthorized){
 					this->m_oLogger.warn("updateActiveDevice: Not authorized. Refreshing Access Token ");
 					this->m_oAuthModule.refreshAccessToken();
+					return pplx::task_from_result(json::value());
 				} 
 				else {
 	            	this->m_oLogger.error(std::string("updateActiveDevice: Could not parse response ") + U2S(response.to_string()));
@@ -266,7 +267,7 @@ void ClPlayerSpotify::cbkSpotifyMainSite(http_request oRequest)
 	//send Website response
 	http_response oResponse(status_codes::OK);
 	oResponse.headers().add(U("Content-Type"), U("text/html"));
-	boost::format oWebsite = readHtmlTemplateFromFile("../Resources/Spotify.html");
+	boost::format oWebsite = readHtmlTemplateFromFile(m_oConfig.sResourceDir +  "/Spotify.html");
 	oWebsite % m_oConfig.sHostname % m_oConfig.nPort % sAllDevices % U2S(m_oAuthModule.getSpotifyAuthorizationUri());
 	//std::stringstream ss;ss.str()
 	//ss << "<html> <head></head><body><a href=\"" << U2S(buildSpotifyAuthorizationUri()) << "\"> Connect Account </a> </body> </html>";

@@ -105,14 +105,36 @@ void ClBaseLogger::debug(const std::string& sMessage, const std::string sLoggerN
 
 }
 
+std::vector<char> ClBaseLogger::readFileToVector(const std::string &sFilePath)
+{
+	std::vector<char> vcOut;
+	try
+	{
+		std::ifstream fsIn;
+		fsIn.open(sFilePath.c_str(), std::ios::in);
+		fsIn.seekg(0, std::ios::end);
+		auto nSize = static_cast<int>(fsIn.tellg());
+		fsIn.seekg(0, std::ios::beg);
+		//read
+		vcOut.resize(nSize+1);
+		fsIn.read(vcOut.data(), nSize);
+	}
+	catch (...) {}
+	return vcOut;
+}
+
+
 void ClBaseLogger::writeLine(const std::string &sLine)
 {
 	//write line
 	std::lock_guard<std::mutex> oGuard(m_oWriteMutex);
 	if (m_oConfig.sLogFilePath != "")
 	{
+		//prepend
+		std::vector<char> vcExistingLog = readFileToVector(m_oConfig.sLogFilePath);
 		FILE* pFile = std::fopen(m_oConfig.sLogFilePath.c_str(), "a");
 		std::fprintf(pFile, "%s\n", sLine.c_str());
+		std::fprintf(pFile, vcExistingLog.data());
 		std::fclose(pFile);
 	}
 	else

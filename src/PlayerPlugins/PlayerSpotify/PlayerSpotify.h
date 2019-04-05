@@ -36,6 +36,7 @@ struct StSpotifyConfig : StPlayerConfig
 	unsigned int nPort;
 	fs::path oCacheDir;
 	std::string sDevice;
+	std::string sResourceDir;
 };
 StSpotifyAuthorizationConfig authConfigFromSpotifyConfig(const StSpotifyConfig &stSpotifyConfig);
 

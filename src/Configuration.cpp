@@ -14,14 +14,14 @@
 ClConfiguration::ClConfiguration() :
 	m_sConfigFilePath("config.ini")
 {
-	initializeLogFile();
+	initializeConfigFile();
 	setupLoggerConfig();
 	setupSpotifyConfig();
 	setupReaderConfig();
 	setupWebserverConfig();
 }
 
-void ClConfiguration::initializeLogFile()
+void ClConfiguration::initializeConfigFile()
 {
 	m_spPropertyTree.reset(new boost::property_tree::ptree());
 	try
@@ -41,8 +41,8 @@ void ClConfiguration::setupLoggerConfig()
 {
 	std::string sLogLevel = getValue<std::string>("Logging.loglevel");
 	ELogLevel eLogLevel = ClBaseLogger::string2LogLevel(sLogLevel);
-	std::string sLogFile = getValue<std::string>("Logging.logfile");
-	m_oLoggerConfig = StLoggerConfig{eLogLevel, sLogFile};
+	std::string sLogFilePath = getValue<std::string>("Logging.logfilePath");
+	m_oLoggerConfig = StLoggerConfig{eLogLevel, sLogFilePath};
 }
 
 void ClConfiguration::setupSpotifyConfig()
@@ -53,6 +53,7 @@ void ClConfiguration::setupSpotifyConfig()
 	unsigned int nPort = getValue<unsigned int>("SandBox.port");
 	std::string sCacheDir = getValue<std::string>("SandBox.cacheDirectory");
 	std::string sDevice = getValue<std::string>("Spotify.device");
+	std::string sResourceDir = getValue<std::string>("SandBox.resourceDirectory");
 
 	m_oSpotifyConfig.sClientId = sClientId;
 	m_oSpotifyConfig.sClientSecret = sClientSecret;
@@ -60,15 +61,20 @@ void ClConfiguration::setupSpotifyConfig()
 	m_oSpotifyConfig.sHostname = sHostname;
 	m_oSpotifyConfig.oCacheDir = fs::path(sCacheDir);
 	m_oSpotifyConfig.sDevice = sDevice;
+	m_oSpotifyConfig.sResourceDir = sResourceDir;
 }
 
 void ClConfiguration::setupWebserverConfig()
 {
 	std::string sHostname = getValue<std::string>("SandBox.hostname");
 	unsigned int nPort = getValue<unsigned int>("SandBox.port");
+	std::string sResourceDir = getValue<std::string>("SandBox.resourceDirectory");
+	std::string sLogFilePath = getValue<std::string>("Logging.logfilePath");
 
 	m_oWebserverConfig.nPort = nPort;
 	m_oWebserverConfig.sHostname = sHostname;
+	m_oWebserverConfig.sResourceDir = sResourceDir;
+	m_oWebserverConfig.sLogFilePath = sLogFilePath;
 }
 
 

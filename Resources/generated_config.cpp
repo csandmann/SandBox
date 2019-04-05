@@ -1,4 +1,4 @@
 #include "generated_config.h"
 
-const char* pcConfig_content = "[SandBox]\nhostname = localhost\nport = 8080\ncacheDirectory = cache\n\n[Logging]\nloglevel = DEBUG\nlogfile = \n\n[Spotify]\nclientId = xxx\nclientSecret = xxx\n\n[Reader]\nreadIntervalInMs = 500\n";
-const unsigned int nConfig_size = 198;
+const char* pcConfig_content = "[SandBox]\nhostname = SandBox\nport = 8080\ncacheDirectory = cache\nresourceDirectory = ../Resources\n\n[Logging]\nloglevel = DEBUG\nlogfile = sand.log\n\n[Spotify]\nclientId = xxx\nclientSecret = xxx\ndevice = SandBox\n\n[Reader]\nreadIntervalInMs = 500\n";
+const unsigned int nConfig_size = 256;

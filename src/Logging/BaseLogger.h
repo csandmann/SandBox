@@ -10,6 +10,7 @@
 
 #include <string>
 #include <mutex>
+#include <vector>
 
 enum class ELogLevel
 {
@@ -47,6 +48,7 @@ private:
 	std::string getTimeStamp();
 	std::string formatLine(const std::string &sMessage, const std::string &sLogLevel, const std::string &sLoggerName = "");
 	void writeLine(const std::string &sLine);
+	std::vector<char> readFileToVector(const std::string &sFilePath);
 
 	const StLoggerConfig m_oConfig;
 	std::mutex m_oWriteMutex;
