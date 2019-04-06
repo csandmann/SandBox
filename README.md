@@ -8,4 +8,3 @@ This is my try to setup a working example of an AudioPlayer
 
 ## ToDo
 * Refactor workflow to load configuration
-* Setup webpage to show log
