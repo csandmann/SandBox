@@ -1,0 +1,14 @@
+[Unit]
+Description=librespot
+After=network.target
+
+[Service]
+ExecStart={PATH_TO_LIBRESPOT} --name SandBox -u {SPOTIFY-USERNAME} -p "{SPOTIFY-PASSWORD}"
+WorkingDirectory=/home/check/Projects/librespot/target/release
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=check
+
+[Install]
+WantedBy=multi-user.target
