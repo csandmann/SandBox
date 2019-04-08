@@ -9,7 +9,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add files and target sandbox
-file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h)
+file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h 3rdParty/*.cpp 3rdParty/*.h)
 add_executable(SandBox ${sources})
 
 #Ubuntu 18.04 has a strange place for cmake files for cpprest

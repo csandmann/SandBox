@@ -1,0 +1,3 @@
+[submodule "3rdParty/RPi-RFID"]
+	path = 3rdParty/RPi-RFID
+	url = https://github.com/paguz/RPi-RFID.git
