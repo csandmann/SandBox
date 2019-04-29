@@ -22,6 +22,7 @@ namespace ReaderMessage
 	
 	struct StCardData
 	{
+		unsigned char nVersionNumber;
 		std::string sPlayerIdentifier;
 		std::vector<unsigned char> vcPlayerMessage;		
 	};

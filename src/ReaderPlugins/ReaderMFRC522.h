@@ -21,8 +21,11 @@ public:
 	~ClReaderMFRC522();
 private:
 	MFRC522 m_oReader;
+	MFRC522::MIFARE_Key m_oKey;
+	
 	const std::vector<unsigned char> read() override;
 	bool write(const std::vector<unsigned char> &stMsg) override;
+	int getTrailerBlock(const int nSector);
 	const StReaderConfig m_oReaderConfig;
 	ClLogger m_oLogger;
 };

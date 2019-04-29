@@ -36,5 +36,6 @@ m_bInterruptRequested(false)
 
 void ClReaderBase::requestWrite(const ReaderMessage::StCardData &stMsg)
 {
+	stMsg.nVersionNumber = '0';
 	m_stToWrite = stMsg;
 }
