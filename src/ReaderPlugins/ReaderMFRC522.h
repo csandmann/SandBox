@@ -12,8 +12,6 @@
 #include "../Logging/Logger.h"
 #include "../../3rdParty/RPi-RFID/MFRC522.h"
 
-namespace fs = boost::filesystem;
-
 class ClReaderMFRC522 : public ClReaderBase
 {
 public:

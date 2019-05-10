@@ -10,6 +10,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add files and target sandbox
 file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h 3rdParty/*.cpp 3rdParty/*.h)
+list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/3rdParty/RPi-RFID/Read.cpp")
 add_executable(SandBox ${sources})
 
 #Ubuntu 18.04 has a strange place for cmake files for cpprest
@@ -40,5 +41,5 @@ elseif(UNIX)
   target_compile_options(SandBox PRIVATE -Wall -std=c++11 -O3)
 endif(MSVC)
 target_include_directories(SandBox PRIVATE ${Boost_INCLUDE_DIRS} ${CPPREST_INCLUDE_DIR})
-target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} ${CPPREST_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost)
+target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} ${CPPREST_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost lbcm2835)
 

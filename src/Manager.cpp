@@ -28,6 +28,7 @@ void ClManager::start()
 			if (vcData.size() > 0)
 			{
 				ReaderMessage::StCardData stCardData;
+				stCardData.nVersionNumber = '0';
 				stCardData.sPlayerIdentifier = poPlayer->getIdentifier();
 				stCardData.vcPlayerMessage = vcData;
 				m_poReader->requestWrite(stCardData);
