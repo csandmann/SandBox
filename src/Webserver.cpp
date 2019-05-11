@@ -12,7 +12,7 @@
  */
 
 ClWebserver::ClWebserver(const StWebserverConfig oConfig):
-m_oMainWebsite(uri(U("http://localhost:8080"))),
+m_oMainWebsite(uri(U("http://SandBox:8080"))),
 m_oLogger(ClLogger{"Webserver"}),
 m_oConfig(oConfig)
 {

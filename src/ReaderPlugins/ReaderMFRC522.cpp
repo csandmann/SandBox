@@ -40,7 +40,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	int nCurrentSector = 0;
 	int nCurrentBlock = 1;	
 	MFRC522::StatusCode nStatus;
-	byte acBuffer[BLOCK_SIZE];
+	byte acBuffer[18];
 	byte nSize = sizeof(acBuffer);
 	//authenticate
 	nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
@@ -54,6 +54,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	m_oLogger.error("read: MIFARE_Read failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 		return vcData;
 	}
+	m_oLogger.info("Read successful");
 	//check if card is valid
 	if (std::memcmp(&acBuffer[0], "SBX", 3))
 	{
@@ -109,7 +110,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 
 
 int ClReaderMFRC522::getTrailerBlock(const int nSector) {
-	return nSector * 4 - 1;
+	return (nSector+1) * 4 - 1;
 }
 
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)

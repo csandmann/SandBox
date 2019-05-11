@@ -1,12 +1,12 @@
 /*
- * ReaderFile.h
+ * ReaderMFRC522.h
  *
  *  Created on: Feb 10, 2019
  *      Author: check
  */
 
-#ifndef INCLUDE_READERFILE_H_
-#define INCLUDE_READERFILE_H_
+#ifndef INCLUDE_READERMFRC522_H_
+#define INCLUDE_READERMFRC522_H_
 
 #include "ReaderBase.h"
 #include "../Logging/Logger.h"
@@ -29,4 +29,4 @@ private:
 };
 
 
-#endif /* INCLUDE_READERFILE_H_ */
+#endif /* INCLUDE_READERMFRC522_H_ */
