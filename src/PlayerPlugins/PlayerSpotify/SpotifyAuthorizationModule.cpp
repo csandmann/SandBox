@@ -3,7 +3,7 @@
 ClSpotifyAuthorizationModule::ClSpotifyAuthorizationModule(const StSpotifyAuthorizationConfig oConfig):
 m_oLogger(ClLogger("SpotifyAuthorizationModule")),
 m_oConfig(oConfig),
-m_oSpotifyAuthCodeReceiver(uri(U("http://localhost:") + U(std::to_string(oConfig.nPort)) + U("/spotify/auth_receiver"))),
+m_oSpotifyAuthCodeReceiver(uri(U(str(boost::format("http://%1:%2/spotify/auth_receiver") % oConfig.sHostname % oConfig.nPort)))),
 m_stTokens(SpotifyTokens::readTokens(oConfig.sTokenFilePath))
 {	
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });

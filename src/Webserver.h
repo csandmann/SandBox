@@ -13,6 +13,7 @@
 #include <boost/format.hpp>
 #include <cpprest/http_listener.h>
 #include <cpprest/json.h>
+#include <boost/format.hpp>
 
 using namespace web;
 using namespace web::http;

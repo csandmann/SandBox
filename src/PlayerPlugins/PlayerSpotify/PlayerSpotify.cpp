@@ -30,8 +30,8 @@ ClPlayerSpotify::ClPlayerSpotify(const StSpotifyConfig oConfig):
 ClPlayerBase(&m_oConfig),
 m_oLogger(ClLogger("Spotify")),
 m_oConfig(oConfig),
-m_oSpotifyMainSite(uri(U("http://localhost:8080/spotify"))),
-m_oSpotifyFormReceiver(uri(U("http://localhost:8080/spotify/form_receiver"))),
+m_oSpotifyMainSite(uri(U(str(boost::format("http://%1:%2/spotify") % oConfig.sHostname % oConfig.nPort)))),
+m_oSpotifyFormReceiver(uri(U(str(boost::format("http://%1:%2/spotify/form_receiver") % oConfig.sHostname % oConfig.nPort)))),
 m_oAuthModule(authConfigFromSpotifyConfig(oConfig))
 {
 	//start listeners for websites
