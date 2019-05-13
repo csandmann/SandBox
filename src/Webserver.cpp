@@ -12,7 +12,7 @@
  */
 
 ClWebserver::ClWebserver(const StWebserverConfig oConfig):
-m_oMainWebsite(uri(U(str(boost::format("http://%1:%2") % oConfig.sHostname % oConfig.nPort)))),
+m_oMainWebsite(uri(U(str(boost::format("http://%1%:%2%") % oConfig.sHostname % oConfig.nPort)))),
 m_oLogger(ClLogger{"Webserver"}),
 m_oConfig(oConfig)
 {

@@ -30,8 +30,8 @@ ClPlayerSpotify::ClPlayerSpotify(const StSpotifyConfig oConfig):
 ClPlayerBase(&m_oConfig),
 m_oLogger(ClLogger("Spotify")),
 m_oConfig(oConfig),
-m_oSpotifyMainSite(uri(U(str(boost::format("http://%1:%2/spotify") % oConfig.sHostname % oConfig.nPort)))),
-m_oSpotifyFormReceiver(uri(U(str(boost::format("http://%1:%2/spotify/form_receiver") % oConfig.sHostname % oConfig.nPort)))),
+m_oSpotifyMainSite(uri(U(str(boost::format("http://%1%:%2%/spotify") % oConfig.sHostname % oConfig.nPort)))),
+m_oSpotifyFormReceiver(uri(U(str(boost::format("http://%1%:%2%/spotify/form_receiver") % oConfig.sHostname % oConfig.nPort)))),
 m_oAuthModule(authConfigFromSpotifyConfig(oConfig))
 {
 	//start listeners for websites
@@ -114,6 +114,7 @@ void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 std::string ClPlayerSpotify::updateActiveDevice()
 {
 	m_oLogger.info("updateActiveDevice: Activating " + m_oConfig.sDevice);
+	std::vector<SpotifyMessage::StSpotifyDevice> voDeviceList;
 	//build request
 	http_request oRequest(methods::GET);
 	oRequest.headers().add(U("Content-Type"), U("application/json"));
@@ -125,7 +126,7 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	            if(response.status_code() == status_codes::OK){
 	                return response.extract_json();
 	            }
-				else if(response.status_code() == status_codes::Unauthorized){
+				else if(response.status_code() == status_codes::BadRequest){
 					this->m_oLogger.warn("updateActiveDevice: Not authorized. Refreshing Access Token ");
 					this->m_oAuthModule.refreshAccessToken();
 					return pplx::task_from_result(json::value());
@@ -157,11 +158,11 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	//execute task and get response
 	try {
 		oTask.wait();
+		voDeviceList = oTask.get();
 	}
 	catch (std::exception &e) {
 		m_oLogger.error(std::string("getDeviceList: Could not perform request: ") + std::string(e.what()));
 	}
-	std::vector<SpotifyMessage::StSpotifyDevice> voDeviceList = oTask.get();
 	//get correct device
 	std::string sAllDevices;
 	bool bPlaybackDeviceFound = false;

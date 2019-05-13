@@ -15,7 +15,6 @@
 #include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
 #include "ReaderPlugins/ReaderMFRC522.h"
 //standard libs
-#include <iostream>
 #include <thread>
 
 

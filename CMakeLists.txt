@@ -19,19 +19,19 @@ if (UNIX)
 	execute_process(COMMAND ${LSB_RELEASE_EXEC} -ds OUTPUT_VARIABLE DISTR_NAME OUTPUT_STRIP_TRAILING_WHITESPACE)
 	if (DISTR_NAME MATCHES "^Ubuntu 18.04")
 		set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake)
-		find_package(cpprestsdk REQUIRED)
 	endif()
 endif(UNIX)
 
 #check if dependencies are available
 set(Boost_USE_STATIC_LIBS ON)
+find_package(cpprestsdk REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(Threads REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
 
 #add cpprest
-find_library(CPPREST_LIBRARY NAMES cpprest cpprest_2_10)
+#find_library(CPPREST_LIBRARY NAMES cpprest cpprest)
 find_path(CPPREST_INCLUDE_DIR "cpprest/http_client.h")
 
 #compilation and linking linking
@@ -41,5 +41,5 @@ elseif(UNIX)
   target_compile_options(SandBox PRIVATE -Wall -std=c++11 -O3)
 endif(MSVC)
 target_include_directories(SandBox PRIVATE ${Boost_INCLUDE_DIRS} ${CPPREST_INCLUDE_DIR})
-target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} ${CPPREST_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
+target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
 

@@ -3,7 +3,7 @@
 ClSpotifyAuthorizationModule::ClSpotifyAuthorizationModule(const StSpotifyAuthorizationConfig oConfig):
 m_oLogger(ClLogger("SpotifyAuthorizationModule")),
 m_oConfig(oConfig),
-m_oSpotifyAuthCodeReceiver(uri(U(str(boost::format("http://%1:%2/spotify/auth_receiver") % oConfig.sHostname % oConfig.nPort)))),
+m_oSpotifyAuthCodeReceiver(uri(U(str(boost::format("http://%1%:%2%/spotify/auth_receiver") % oConfig.sHostname % oConfig.nPort)))),
 m_stTokens(SpotifyTokens::readTokens(oConfig.sTokenFilePath))
 {	
 	m_oSpotifyAuthCodeReceiver.support(methods::GET,  [this](http_request request){ this->cbkSpotifyAuthCodeReceiver(request); });
@@ -136,7 +136,12 @@ void ClSpotifyAuthorizationModule::refreshAccessToken()
 	        .then([this](http_response response)-> pplx::task<json::value>{
 	            if(response.status_code() == status_codes::OK){
 	                return response.extract_json();
-	            } else {
+	            }
+		    else if (response.status_code() == status_codes::BadRequest){
+	            	this->m_oLogger.error("refreshAccessToken: Are tokens initialized?");
+	            	return pplx::task_from_result(json::value());
+		    }
+		    else {
 	            	this->m_oLogger.error("refreshAccessToken: Could not parse response " + U2S(response.to_string()));
 	            	return pplx::task_from_result(json::value());
 	            };})
