@@ -29,12 +29,7 @@ ClReaderMFRC522::~ClReaderMFRC522() {}
 const std::vector<unsigned char> ClReaderMFRC522::read()
 {
 	std::vector<unsigned char> vcData;
-	//check if card is present and read uuid
-	if ( ! m_oReader.PICC_IsNewCardPresent()) {
-		return vcData;
-	}
-    // Select one of the cards
-    if ( ! m_oReader.PICC_ReadCardSerial()) {
+    	if (!m_oReader.PICC_IsNewCardPresent() || !m_oReader.PICC_ReadCardSerial()) {
 		return vcData;
 	}
 	//init readout
@@ -55,7 +50,6 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	m_oLogger.error("read: MIFARE_Read failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 		return vcData;
 	}
-	m_oLogger.info("Read successful");
 	//check if card is valid
 	if (std::memcmp(&acBuffer[0], "SBX", 3))
 	{
@@ -85,6 +79,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 				vcData.resize(0);
 				return vcData;
 			}
+			m_oLogger.debug("read: PCD_Authenticate success " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 		}
 		for (;nCurrentBlock<(BLOCKS_PER_SECTOR-1); nCurrentBlock++)
 		{
@@ -106,6 +101,11 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 		}
 		nCurrentBlock = 0;
 	}
+	std::cout << "Reading: " << std::endl;
+	for (int i = 0; i<vcData.size(); i++)
+	{
+		std::cout << i << ": "<<  vcData[i] << std::endl;
+	}
 	return vcData;
 }
 
@@ -116,17 +116,22 @@ int ClReaderMFRC522::getTrailerBlock(const int nSector) {
 
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 {
-    // Select one of the cards
+	m_oLogger.debug("write: Starting write");
+	std::cout << "Writing: " << std::endl;
+	for (int i = 0; i<vcData.size(); i++)
+	{
+		std::cout << i << ": "<<  vcData[i] << std::endl;
+	}
 	//setup vcDataWithHeader
-	int nDataSizeWithHeader = 3 + sizeof(int) + vcData.size();
-	std::vector<unsigned char> vcDataWithHeader(nDataSizeWithHeader);
+	int nDataSizeWithoutHeader = vcData.size();
+	std::vector<unsigned char> vcDataWithHeader(3+sizeof(int)+nDataSizeWithoutHeader);
 	unsigned char* pcCurrentPos = vcDataWithHeader.data();
 	//prepend first bytes
 	const char* pcIdentifier = "SBX";
 	std::memcpy(pcCurrentPos, reinterpret_cast<const unsigned char*>(pcIdentifier), 3);
 	pcCurrentPos += 3;
 	//prepend datasize
-	std::memcpy(pcCurrentPos, reinterpret_cast<unsigned char*>(&nDataSizeWithHeader), sizeof(int));
+	std::memcpy(pcCurrentPos, reinterpret_cast<unsigned char*>(&nDataSizeWithoutHeader), sizeof(int));
 	pcCurrentPos += sizeof(int);
 	//copy data
 	std::memcpy(pcCurrentPos, vcData.data(), vcData.size());
@@ -151,7 +156,9 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 		{
 			int nTmp = vcDataWithHeader.size() - nWrittenData;
 			int nToWrite = std::min(nTmp, BLOCK_SIZE);
-			nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Write(nCurrentSector*BLOCKS_PER_SECTOR + nCurrentBlock, &vcDataWithHeader[nWrittenData], nToWrite);
+			std::vector<unsigned char> vcToWrite(BLOCK_SIZE);
+			std::memcpy(vcToWrite.data(), &vcDataWithHeader[nWrittenData], nToWrite);
+			nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Write(nCurrentSector*BLOCKS_PER_SECTOR + nCurrentBlock, vcToWrite.data(), BLOCK_SIZE);
 			if (nStatus != MFRC522::STATUS_OK) 
 			{
 				m_oLogger.error("write: MIFARE_Write failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));

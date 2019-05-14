@@ -83,7 +83,9 @@ void ClPlayerSpotify::playContext(const std::string &sMessage)
 
 void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 {
+	m_oLogger.debug("Executing spotify command");
 	SpotifyMessage::StMessage stMsg = SpotifyMessage::deserialize(vcMessage);
+	m_oLogger.debug("Message deserialized");
 	switch (stMsg.eCommand)
 	{
 		case SpotifyMessage::ECommand::playTrack: 
