@@ -38,4 +38,5 @@ Debug
 config.ini
 cache
 CodeLite
+*.swp
 

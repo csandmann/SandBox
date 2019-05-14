@@ -50,7 +50,7 @@ ClPlayerSpotify::~ClPlayerSpotify() {
 }
 
 const std::string ClPlayerSpotify::getIdentifier() const {
-	return "spotify";
+	return std::string("spotify");
 }
 
 const bool ClPlayerSpotify::restEndpointActive() const {

@@ -32,7 +32,7 @@ namespace ReaderMessage
 	std::vector<unsigned char> serializeCardData(const StCardData &stData)
 	{
 		int nVersionNumber = sizeof(unsigned char);
-		int nIdentifier = strlen(stData.sPlayerIdentifier.c_str());
+		int nIdentifier = strlen(stData.sPlayerIdentifier.c_str()) + 1;
 		int nData = stData.vcPlayerMessage.size();
 		std::vector<unsigned char> vcDataToWrite(nVersionNumber + nIdentifier + nData);
 		unsigned char *pcHead = vcDataToWrite.data();

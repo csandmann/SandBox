@@ -41,10 +41,8 @@ void ClManager::start()
 		{			
             for (auto poPlayer : m_vpPlayers)
             {
-		std::cout << "checking " << poPlayer->getIdentifier() << " " << stMsg.stCardData.sPlayerIdentifier  <<std::endl;
                 if (poPlayer->getIdentifier() == stMsg.stCardData.sPlayerIdentifier)
                 {
-			std::cout << "Executing " <<std::endl;
                     poPlayer->execute(stMsg.stCardData.vcPlayerMessage);
                     m_poActivePlayer = poPlayer;
                 }
@@ -78,7 +76,6 @@ bool ClManager::playbackNeeded(const ReaderMessage::StMessage& stMsg)
 {
 	bool b1 = stMsg.eStatus == ReaderMessage::EStatus::DETECTED;
 	bool b2 = stMsg.stCardData != m_stCurrentMsg.stCardData;
-	std::cout << "MAnager: " << b1 << " " << b2 << std::endl;
 	return (b1 && b2);
 }
 
