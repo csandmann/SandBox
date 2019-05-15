@@ -13,7 +13,11 @@
 #include "./Logging/BaseLogger.h"
 //plugins
 #include "PlayerPlugins/PlayerSpotify/PlayerSpotify.h"
+#ifdef DRY_RUN
+#include "ReaderPlugins/ReaderFile.h"
+#else
 #include "ReaderPlugins/ReaderMFRC522.h"
+#endif
 //standard libs
 #include <thread>
 
@@ -25,7 +29,11 @@ int main() {
 	//initialize components
 	ClWebserver oWebserver(oConfig.getWebserverConfig());
 	ClPlayerSpotify oPlayerSpotify(oConfig.getSpotifyConfig());
+#ifdef DRY_RUN
+	ClReaderFile oReader(oConfig.getReaderConfig());
+#else
 	ClReaderMFRC522 oReader(oConfig.getReaderConfig());
+#endif
 	//create manager
 	ClManager oManager(&oReader);
 	oManager.registerPlayer(&oPlayerSpotify);

@@ -9,29 +9,22 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add files and target sandbox
-file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h 3rdParty/*.cpp 3rdParty/*.h)
-list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/3rdParty/RPi-RFID/Read.cpp")
+if (DRY_RUN)
+	file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h)
+	list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/src/ReaderPlugins/ReaderMFRC522.cpp")
+else (DRY_RUN)
+	file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h 3rdParty/*.cpp 3rdParty/*.h)
+	list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/3rdParty/RPi-RFID/Read.cpp")
+endif(DRY_RUN)
 add_executable(SandBox ${sources})
-
-#Ubuntu 18.04 has a strange place for cmake files for cpprest
-if (UNIX)
-	find_program(LSB_RELEASE_EXEC lsb_release)
-	execute_process(COMMAND ${LSB_RELEASE_EXEC} -ds OUTPUT_VARIABLE DISTR_NAME OUTPUT_STRIP_TRAILING_WHITESPACE)
-	if (DISTR_NAME MATCHES "^Ubuntu 18.04")
-		set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake)
-	endif()
-endif(UNIX)
 
 #check if dependencies are available
 set(Boost_USE_STATIC_LIBS ON)
-find_package(cpprestsdk REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(Threads REQUIRED)
-find_package(OpenSSL REQUIRED)
 find_package(ZLIB REQUIRED)
 
 #add cpprest
-#find_library(CPPREST_LIBRARY NAMES cpprest cpprest)
 find_path(CPPREST_INCLUDE_DIR "cpprest/http_client.h")
 
 #compilation and linking linking
@@ -41,5 +34,14 @@ elseif(UNIX)
   target_compile_options(SandBox PRIVATE -Wall -std=c++11 -O3)
 endif(MSVC)
 target_include_directories(SandBox PRIVATE ${Boost_INCLUDE_DIRS} ${CPPREST_INCLUDE_DIR})
-target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
 
+if(DRY_RUN)
+	message("BUILDING WITH DRY_RUN")
+	add_definitions(-DDRY_RUN)
+	find_package(OpenSSL REQUIRED)
+	target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost)
+else(DRY_RUN)
+	message("BUILDING WITH DEFAULT READER")
+	find_package(OpenSSL1.0 REQUIRED)
+	target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
+endif(DRY_RUN)
