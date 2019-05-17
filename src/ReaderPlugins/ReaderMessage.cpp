@@ -52,7 +52,7 @@ namespace ReaderMessage
 			try
 			{
 				int nVersionNumber = sizeof(unsigned char);
-				int nIdentifier = strlen(reinterpret_cast<const char*>(&vcData.at(nVersionNumber)));
+				int nIdentifier = strlen(reinterpret_cast<const char*>(&vcData.at(nVersionNumber))) + 1;
 				int nData = vcData.size() - nIdentifier - nVersionNumber;
 				if (nData <= 0)
 				{
