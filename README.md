@@ -81,11 +81,15 @@ cmake -DDEVELOPMENT=1 ..
 	* [libbcm2835](https://www.airspayce.com/mikem/bcm2835/)
 * PlayerSpotify
 	* [cpprest](https://github.com/microsoft/cpprestsdk)
+* Optional component to emulate a Spotify device on the RaspberryPi
+	* [librespot](https://github.com/librespot-org/librespot)
 
 ## ToDo
 ### Top Priority
 * Create a DEB installer package for the Raspberry-Pi Zero
 ### Medium Priority
+* Integrate play/pause, next, previous buttons
+* Integrate a speaker and a rotary encoder for volumen control
 * Make the plugin interfaces C-Interfaces
 * Refactor workflow to load the plugin configurations.
 * Integrate playback of local audio files
@@ -95,4 +99,6 @@ This project is licensed under *Open Source Licensing GPL V3* (see LICENSE.txt f
 * [BOOST](https://www.boost.org) is licensed under *Boost Software License - Version 1.0 - August 17th, 2003*.
 * [cpprest](https://github.com/microsoft/cpprestsdk) is licensed under the *MIT License*
 * [libbcm2835](https://www.airspayce.com/mikem/bcm2835) is licensensed under *Open Source Licensing GPL V2*
-* RPi-RFID: -
+* [librespot](https://github.com/librespot-org/librespot) is licensed under the *MIT License*
+* RPi-RFID: ?
+
