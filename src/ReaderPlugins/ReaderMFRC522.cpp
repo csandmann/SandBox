@@ -32,6 +32,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
     	if (!m_oReader.PICC_IsNewCardPresent() || !m_oReader.PICC_ReadCardSerial()) {
 		return vcData;
 	}
+	m_oLogger.info("Read: New card detected");
 	//init readout
 	int nCurrentSector = 0;
 	int nCurrentBlock = 1;	
@@ -53,7 +54,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	//check if card is valid
 	if (std::memcmp(&acBuffer[0], "SBX", 3))
 	{
-		m_oLogger.info("read: Card Invalid");
+		m_oLogger.info("read: Card Invalid (header does not start with 'SBX')");
 		return vcData;
 	}
 	//get total length of data to read
@@ -79,7 +80,6 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 				vcData.resize(0);
 				return vcData;
 			}
-			m_oLogger.debug("read: PCD_Authenticate success " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 		}
 		for (;nCurrentBlock<(BLOCKS_PER_SECTOR-1); nCurrentBlock++)
 		{
@@ -101,10 +101,11 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 		}
 		nCurrentBlock = 0;
 	}
-	std::cout << "Reading: " << std::endl;
+	m_oLogger.info("Read: Success, obtained" + std::to_string(vcData.size()) + " bytes");
+	m_oLogger.debug("Read: Card data:");
 	for (int i = 0; i<vcData.size(); i++)
 	{
-		std::cout << i << ": "<<  vcData[i] << std::endl;
+		m_oLogger.debug(std::to_string(i) + ": " + std::to_string(vcData[i]));
 	}
 	return vcData;
 }
@@ -116,11 +117,11 @@ int ClReaderMFRC522::getTrailerBlock(const int nSector) {
 
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 {
-	m_oLogger.debug("write: Starting write");
-	std::cout << "Writing: " << std::endl;
+	m_oLogger.info("write: Starting to write " + std::to_string(vcData.size()) + " bytes");
+	m_oLogger.debug("write: data");
 	for (int i = 0; i<vcData.size(); i++)
 	{
-		std::cout << i << ": "<<  vcData[i] << std::endl;
+		m_oLogger.debug(std::to_string(i) + ": " + std::to_string(vcData[i]));
 	}
 	//setup vcDataWithHeader
 	int nDataSizeWithoutHeader = vcData.size();
@@ -173,5 +174,6 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 		}
 		nCurrentBlock = 0;
 	}
+	m_oLogger.debug("write: success");
 	return true;
 }

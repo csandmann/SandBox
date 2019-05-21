@@ -21,7 +21,6 @@ void ClReaderBase::start()
 		//write
 		if (m_stToWrite.vcPlayerMessage.size() > 0)
 		{
-			std::cout << "nVersionNumber: " << m_stToWrite.nVersionNumber << std::endl;
 			bool bSuccess = write(ReaderMessage::serializeCardData(m_stToWrite));
 			if (bSuccess) {
 				ReaderMessage::resetCardData(m_stToWrite);	
