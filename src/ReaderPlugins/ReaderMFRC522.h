@@ -26,6 +26,9 @@ private:
 	int getTrailerBlock(const int nSector);
 	const StReaderConfig m_oReaderConfig;
 	ClLogger m_oLogger;
+	std::vector<unsigned char> m_vcCardData;
+	MFRC522::Uid m_oUid;
+	void resetReader();
 };
 
 

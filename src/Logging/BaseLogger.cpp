@@ -134,7 +134,7 @@ void ClBaseLogger::writeLine(const std::string &sLine)
 		std::vector<char> vcExistingLog = readFileToVector(m_oConfig.sLogFilePath);
 		FILE* pFile = std::fopen(m_oConfig.sLogFilePath.c_str(), "a");
 		std::fprintf(pFile, "%s\n", sLine.c_str());
-		std::fprintf(pFile, vcExistingLog.data());
+		std::fprintf(pFile, "%s", vcExistingLog.data());
 		std::fclose(pFile);
 	}
 	else

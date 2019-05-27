@@ -29,10 +29,40 @@ ClReaderMFRC522::~ClReaderMFRC522() {}
 const std::vector<unsigned char> ClReaderMFRC522::read()
 {
 	std::vector<unsigned char> vcData;
-    	if (!m_oReader.PICC_IsNewCardPresent() || !m_oReader.PICC_ReadCardSerial()) {
-		return vcData;
+	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
+	//check twice
+	if (!bNewCard)
+	{
+		bNewCard = m_oReader.PICC_IsNewCardPresent();
 	}
-	m_oLogger.info("Read: New card detected");
+	if (!bNewCard)
+	{
+		//no card detected
+		m_vcCardData.resize(0);
+		resetReader();
+		return m_vcCardData;
+	}
+	//check if card has been read already
+	bool bCardSerial = m_oReader.PICC_ReadCardSerial();
+	if (!bCardSerial)
+	{
+		m_oLogger.error("read: Card detected but could not read card serial!");
+		m_vcCardData.resize(0);
+		resetReader();
+		return m_vcCardData;
+	}
+	int nDifferent = std::memcmp(&m_oUid, &m_oReader.uid, sizeof(MFRC522::Uid));
+	if (nDifferent == 0)
+	{
+		m_oLogger.debug("read: card already read " + std::to_string(nDifferent));
+		resetReader();
+		return m_vcCardData;
+	}
+	else
+	{
+		m_oLogger.info("Read: New card detected");
+		std::memcpy(&m_oUid, &m_oReader.uid, sizeof(MFRC522::Uid));
+	}
 	//init readout
 	int nCurrentSector = 0;
 	int nCurrentBlock = 1;	
@@ -41,20 +71,25 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	byte nSize = sizeof(acBuffer);
 	//authenticate
 	nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
-	if (nStatus != MFRC522::STATUS_OK) {
+	if (nStatus != MFRC522::STATUS_OK) 
+	{
 		m_oLogger.error("read: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
-        return vcData;
+		resetReader();
+        	return vcData;
 	} 
 	//read
 	nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Read(nCurrentBlock, acBuffer, &nSize);
-    if (nStatus != MFRC522::STATUS_OK) {
+    if (nStatus != MFRC522::STATUS_OK) 
+    {
 	m_oLogger.error("read: MIFARE_Read failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
+		resetReader();
 		return vcData;
 	}
 	//check if card is valid
 	if (std::memcmp(&acBuffer[0], "SBX", 3))
 	{
 		m_oLogger.info("read: Card Invalid (header does not start with 'SBX')");
+		resetReader();
 		return vcData;
 	}
 	//get total length of data to read
@@ -75,18 +110,22 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 		if (nCurrentSector > 0) //first sector is already authenticated
 		{
 			nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
-			if (nStatus != MFRC522::STATUS_OK) {
+			if (nStatus != MFRC522::STATUS_OK) 
+			{
 				m_oLogger.error("read: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 				vcData.resize(0);
+				resetReader();
 				return vcData;
 			}
 		}
 		for (;nCurrentBlock<(BLOCKS_PER_SECTOR-1); nCurrentBlock++)
 		{
 			nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Read(BLOCKS_PER_SECTOR*nCurrentSector + nCurrentBlock, acBuffer, &nSize);
-			if (nStatus != MFRC522::STATUS_OK) {
+			if (nStatus != MFRC522::STATUS_OK) 
+			{
 				m_oLogger.error("read: MIFARE_Read failed for sector(s) " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 				vcData.resize(0);
+				resetReader();
 				return vcData;
 			}
 			//copy to vector
@@ -103,10 +142,12 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	}
 	m_oLogger.info("Read: Success, obtained" + std::to_string(vcData.size()) + " bytes");
 	m_oLogger.debug("Read: Card data:");
-	for (int i = 0; i<vcData.size(); i++)
+	for (unsigned int i = 0; i<vcData.size(); i++)
 	{
 		m_oLogger.debug(std::to_string(i) + ": " + std::to_string(vcData[i]));
 	}
+	m_vcCardData = vcData;
+	resetReader();
 	return vcData;
 }
 
@@ -117,9 +158,28 @@ int ClReaderMFRC522::getTrailerBlock(const int nSector) {
 
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 {
+	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
+	//check twice
+	if (!bNewCard)
+	{
+		bNewCard = m_oReader.PICC_IsNewCardPresent();
+	}
+	if (!bNewCard) //really no new card
+	{
+		resetReader();
+		m_oLogger.warn("write: No card detected");
+		return false;
+	}
+	bool bCardSerial = m_oReader.PICC_ReadCardSerial();
+	if (!bCardSerial)
+	{
+		m_oLogger.error("write: Card detected but could not read card serial!");
+		resetReader();
+		return false;
+	}
 	m_oLogger.info("write: Starting to write " + std::to_string(vcData.size()) + " bytes");
 	m_oLogger.debug("write: data");
-	for (int i = 0; i<vcData.size(); i++)
+	for (unsigned int i = 0; i<vcData.size(); i++)
 	{
 		m_oLogger.debug(std::to_string(i) + ": " + std::to_string(vcData[i]));
 	}
@@ -137,7 +197,7 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 	//copy data
 	std::memcpy(pcCurrentPos, vcData.data(), vcData.size());
 	//init writeout
-	int nWrittenData = 0;
+	unsigned int nWrittenData = 0;
 	int nCurrentSector = 0;
 	int nCurrentBlock = 1;	
 	MFRC522::StatusCode nStatus;
@@ -149,8 +209,10 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 			break;
 		}
 		nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
-		if (nStatus != MFRC522::STATUS_OK) {
+		if (nStatus != MFRC522::STATUS_OK) 
+		{
 			m_oLogger.error("write: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
+			resetReader();
 			return false;
 		}
 		for (;nCurrentBlock < (BLOCKS_PER_SECTOR-1); nCurrentBlock++)
@@ -163,6 +225,7 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 			if (nStatus != MFRC522::STATUS_OK) 
 			{
 				m_oLogger.error("write: MIFARE_Write failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
+				resetReader();
 				return false;
 			}
 			nWrittenData += BLOCK_SIZE;
@@ -174,6 +237,13 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 		}
 		nCurrentBlock = 0;
 	}
+	resetReader();
 	m_oLogger.debug("write: success");
 	return true;
+}
+
+void ClReaderMFRC522::resetReader()
+{
+	m_oReader.PICC_HaltA();
+	m_oReader.PCD_StopCrypto1();
 }
