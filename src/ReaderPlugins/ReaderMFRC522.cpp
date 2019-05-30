@@ -7,6 +7,8 @@
 #include "ReaderMFRC522.h"
 #include <string>
 #include <iostream>
+#include <thread>
+#include <chrono>
 
 #define SECTORS 16
 #define BLOCK_SIZE 16
@@ -30,15 +32,11 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 {
 	std::vector<unsigned char> vcData;
 	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
-	//check twice
-	if (!bNewCard)
-	{
-		bNewCard = m_oReader.PICC_IsNewCardPresent();
-	}
 	if (!bNewCard)
 	{
 		//no card detected
 		m_vcCardData.resize(0);
+		std::memset(&m_oUid, 0, sizeof(MFRC522::Uid));
 		resetReader();
 		return m_vcCardData;
 	}
@@ -48,13 +46,14 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	{
 		m_oLogger.error("read: Card detected but could not read card serial!");
 		m_vcCardData.resize(0);
+		std::memset(&m_oUid, 0, sizeof(MFRC522::Uid));
 		resetReader();
 		return m_vcCardData;
 	}
 	int nDifferent = std::memcmp(&m_oUid, &m_oReader.uid, sizeof(MFRC522::Uid));
 	if (nDifferent == 0)
 	{
-		m_oLogger.debug("read: card already read " + std::to_string(nDifferent));
+		m_oLogger.debug("read: card already read");
 		resetReader();
 		return m_vcCardData;
 	}
@@ -159,12 +158,7 @@ int ClReaderMFRC522::getTrailerBlock(const int nSector) {
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 {
 	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
-	//check twice
-	if (!bNewCard)
-	{
-		bNewCard = m_oReader.PICC_IsNewCardPresent();
-	}
-	if (!bNewCard) //really no new card
+	if (!bNewCard) //no new card
 	{
 		resetReader();
 		m_oLogger.warn("write: No card detected");
@@ -244,6 +238,13 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 
 void ClReaderMFRC522::resetReader()
 {
-	m_oReader.PICC_HaltA();
+	byte nStatus = m_oReader.PICC_HaltA();
+	if (nStatus != MFRC522::STATUS_OK)
+	{
+		std::cout << "HaltA unsuccessful" << std::endl;
+	}
 	m_oReader.PCD_StopCrypto1();
+	m_oReader.PCD_Reset();
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	m_oReader.PCD_Init();
 }
