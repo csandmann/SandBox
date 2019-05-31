@@ -27,8 +27,10 @@ private:
 	const StReaderConfig m_oReaderConfig;
 	ClLogger m_oLogger;
 	std::vector<unsigned char> m_vcCardData;
-	MFRC522::Uid m_oUid;
+	bool m_bCardDetected;
 	void resetReader();
+	void resetReaderHard();
+	std::vector<unsigned char> readDetectedCard();
 };
 
 

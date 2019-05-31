@@ -17,7 +17,8 @@
 ClReaderMFRC522::ClReaderMFRC522(const StReaderConfig oReaderConfig):
 ClReaderBase(&m_oReaderConfig),
 m_oReaderConfig(oReaderConfig),
-m_oLogger(ClLogger("ReaderMFRC522"))
+m_oLogger(ClLogger("ReaderMFRC522")),
+m_bCardDetected(false)
 {
 	m_oReader.PCD_Init();
 	//setup default key
@@ -30,37 +31,40 @@ ClReaderMFRC522::~ClReaderMFRC522() {}
 
 const std::vector<unsigned char> ClReaderMFRC522::read()
 {
-	std::vector<unsigned char> vcData;
+	//check if a card is there
 	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
 	if (!bNewCard)
 	{
-		//no card detected
-		m_vcCardData.resize(0);
-		std::memset(&m_oUid, 0, sizeof(MFRC522::Uid));
-		resetReader();
-		return m_vcCardData;
+		bNewCard = m_oReader.PICC_IsNewCardPresent();
 	}
-	//check if card has been read already
+	//Workflow
+	if (bNewCard && !m_bCardDetected)
+	{
+		m_vcCardData = readDetectedCard();
+		m_bCardDetected = true;
+		resetReaderHard();
+	}
+	else if (!bNewCard && m_bCardDetected)
+	{
+		m_vcCardData.resize(0);
+		m_bCardDetected = false;
+	}
+	return m_vcCardData;
+}
+
+
+int ClReaderMFRC522::getTrailerBlock(const int nSector) {
+	return (nSector+1) * 4 - 1;
+}
+
+std::vector<unsigned char> ClReaderMFRC522::readDetectedCard()
+{
+	std::vector<unsigned char> vcData;
 	bool bCardSerial = m_oReader.PICC_ReadCardSerial();
 	if (!bCardSerial)
 	{
-		m_oLogger.error("read: Card detected but could not read card serial!");
-		m_vcCardData.resize(0);
-		std::memset(&m_oUid, 0, sizeof(MFRC522::Uid));
-		resetReader();
-		return m_vcCardData;
-	}
-	int nDifferent = std::memcmp(&m_oUid, &m_oReader.uid, sizeof(MFRC522::Uid));
-	if (nDifferent == 0)
-	{
-		m_oLogger.debug("read: card already read");
-		resetReader();
-		return m_vcCardData;
-	}
-	else
-	{
-		m_oLogger.info("Read: New card detected");
-		std::memcpy(&m_oUid, &m_oReader.uid, sizeof(MFRC522::Uid));
+		m_oLogger.error("readDetectedCard: Could not read card serial!");
+		return vcData;
 	}
 	//init readout
 	int nCurrentSector = 0;
@@ -72,23 +76,20 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 	nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
 	if (nStatus != MFRC522::STATUS_OK) 
 	{
-		m_oLogger.error("read: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
-		resetReader();
+		m_oLogger.error("readDetectedCard: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
         	return vcData;
 	} 
 	//read
 	nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Read(nCurrentBlock, acBuffer, &nSize);
     if (nStatus != MFRC522::STATUS_OK) 
     {
-	m_oLogger.error("read: MIFARE_Read failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
-		resetReader();
+	m_oLogger.error("readDetectedCard: MIFARE_Read failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 		return vcData;
 	}
 	//check if card is valid
 	if (std::memcmp(&acBuffer[0], "SBX", 3))
 	{
-		m_oLogger.info("read: Card Invalid (header does not start with 'SBX')");
-		resetReader();
+		m_oLogger.info("readDetectedCard: Card Invalid (header does not start with 'SBX')");
 		return vcData;
 	}
 	//get total length of data to read
@@ -111,9 +112,8 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 			nStatus = (MFRC522::StatusCode) m_oReader.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, getTrailerBlock(nCurrentSector), &m_oKey, &(m_oReader.uid));
 			if (nStatus != MFRC522::STATUS_OK) 
 			{
-				m_oLogger.error("read: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
+				m_oLogger.error("readDetectedCard: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 				vcData.resize(0);
-				resetReader();
 				return vcData;
 			}
 		}
@@ -122,9 +122,8 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 			nStatus = (MFRC522::StatusCode) m_oReader.MIFARE_Read(BLOCKS_PER_SECTOR*nCurrentSector + nCurrentBlock, acBuffer, &nSize);
 			if (nStatus != MFRC522::STATUS_OK) 
 			{
-				m_oLogger.error("read: MIFARE_Read failed for sector(s) " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
+				m_oLogger.error("readDetectedCard: MIFARE_Read failed for sector(s) " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
 				vcData.resize(0);
-				resetReader();
 				return vcData;
 			}
 			//copy to vector
@@ -139,20 +138,15 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 		}
 		nCurrentBlock = 0;
 	}
-	m_oLogger.info("Read: Success, obtained" + std::to_string(vcData.size()) + " bytes");
-	m_oLogger.debug("Read: Card data:");
+	m_oLogger.info("ReadDetectedCard: Success, obtained" + std::to_string(vcData.size()) + " bytes");
+	m_oLogger.debug("ReadDetectedCard: Card data:");
 	for (unsigned int i = 0; i<vcData.size(); i++)
 	{
 		m_oLogger.debug(std::to_string(i) + ": " + std::to_string(vcData[i]));
 	}
 	m_vcCardData = vcData;
-	resetReader();
 	return vcData;
-}
 
-
-int ClReaderMFRC522::getTrailerBlock(const int nSector) {
-	return (nSector+1) * 4 - 1;
 }
 
 bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
@@ -160,7 +154,10 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
 	if (!bNewCard) //no new card
 	{
-		resetReader();
+		bNewCard = m_oReader.PICC_IsNewCardPresent();
+	}
+	if (!bNewCard)
+	{
 		m_oLogger.warn("write: No card detected");
 		return false;
 	}
@@ -168,7 +165,7 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 	if (!bCardSerial)
 	{
 		m_oLogger.error("write: Card detected but could not read card serial!");
-		resetReader();
+		resetReaderHard();
 		return false;
 	}
 	m_oLogger.info("write: Starting to write " + std::to_string(vcData.size()) + " bytes");
@@ -206,7 +203,7 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 		if (nStatus != MFRC522::STATUS_OK) 
 		{
 			m_oLogger.error("write: PCD_Authenticate failed for sector " + std::to_string(nCurrentSector) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
-			resetReader();
+			resetReaderHard();
 			return false;
 		}
 		for (;nCurrentBlock < (BLOCKS_PER_SECTOR-1); nCurrentBlock++)
@@ -219,7 +216,7 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 			if (nStatus != MFRC522::STATUS_OK) 
 			{
 				m_oLogger.error("write: MIFARE_Write failed for sector " + std::to_string(nCurrentSector) + " and block " + std::to_string(nCurrentBlock) + ": " + std::string(m_oReader.GetStatusCodeName(nStatus)));
-				resetReader();
+				resetReaderHard();
 				return false;
 			}
 			nWrittenData += BLOCK_SIZE;
@@ -231,20 +228,21 @@ bool ClReaderMFRC522::write(const std::vector<unsigned char> &vcData)
 		}
 		nCurrentBlock = 0;
 	}
-	resetReader();
+	resetReaderHard();
 	m_oLogger.debug("write: success");
 	return true;
+}
+
+void ClReaderMFRC522::resetReaderHard()
+{
+	resetReader();
+	m_oReader.PCD_Reset();
+	std::this_thread::sleep_for(std::chrono::milliseconds(50));
+	m_oReader.PCD_Init();
 }
 
 void ClReaderMFRC522::resetReader()
 {
 	byte nStatus = m_oReader.PICC_HaltA();
-	if (nStatus != MFRC522::STATUS_OK)
-	{
-		std::cout << "HaltA unsuccessful" << std::endl;
-	}
 	m_oReader.PCD_StopCrypto1();
-	m_oReader.PCD_Reset();
-	std::this_thread::sleep_for(std::chrono::milliseconds(50));
-	m_oReader.PCD_Init();
 }
