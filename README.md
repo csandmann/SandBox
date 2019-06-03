@@ -33,7 +33,7 @@ Next prepare your Spotify Developer account:
 2. Click "Create an App", add a new App called "SandBox" and fill in all settings
 3. Under "Redirect URIs" fill in *http://sandbox/spotify/auth_receiver*
 
-### Setup
+### Setup (NO RELEASES PUBLISHED YET)
 1. Login to you Raspberry Pi
 1. Download the latest Release and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
 2. Change your Raspberry Pie's to "SandBox" by editing /etc/hostname
@@ -55,8 +55,8 @@ apt install git, cmake, build-essential, libcpprest-dev
 Then clone the repository and init the 3rd Party Dependencies
 ```
 git clone https://github.com/check0104/SandBox.git
-git submodule --init --recursive
 cd SandBox
+git submodule update --init --recursive
 mkdir build
 ```
 
