@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(SandBox)
-set(SandBox_VERSION_MAJOR 0)
+set(SandBox_VERSION_MAJOR 1)
 set(SandBox_VERSION_MINOR 0)
 set(SandBox_VERSION_PATCH 0)
 
@@ -45,3 +45,34 @@ else(DEVELOPMENT)
 	find_package(OpenSSL REQUIRED)
 	target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
 endif(DEVELOPMENT)
+
+
+#CPACK
+install(DIRECTORY Resources DESTINATION /opt/sandbox)
+install(FILES Resources/config.ini DESTINATION /opt/sandbox)
+install(FILES Resources/librespot.service DESTINATION /etc/systemd/system)
+install(TARGETS SandBox DESTINATION /opt/sandbox)
+
+IF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
+INCLUDE(InstallRequiredSystemLibraries)
+
+SET(CPACK_SET_DESTDIR "on")
+SET(CPACK_GENERATOR "DEB")
+
+SET(CPACK_PACKAGE_DESCRIPTION "RFID Audio Player for the RaspberryPi")
+SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "This RFID-Controlled Audio Player can do more than you think")
+SET(CPACK_PACKAGE_CONTACT "sandbox@cksandmann.de")
+SET(CPACK_PACKAGE_HOMEPAGE "https://github.com/check0104/SandBox")
+SET(CPACK_PACKAGE_VERSION_MAJOR "${SandBox_VERSION_MAJOR}")
+SET(CPACK_PACKAGE_VERSION_MINOR "${SandBox_VERSION_MINOR}")
+SET(CPACK_PACKAGE_VERSION_PATCH "${SandBox_VERSION_PATCH}")
+SET(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${SandBox_VERSION_MAJOR}.${SandBox_VERSION_MINOR}.${SandBox_VERSION_PATCH}")
+SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${SandBox_VERSION_MAJOR}.${SandBox_VERSION_MINOR}.${SandBox_VERSION_PATCH}")
+SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libssl1.1")
+
+SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+SET(CPACK_DEBIAN_PACKAGE_SECTION "Sound")
+SET(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
+INCLUDE(CPack)
+
+ENDIF(EXISTS "${CMAKE_ROOT}/Modules/CPack.cmake")
