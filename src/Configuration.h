@@ -28,7 +28,7 @@ private:
 	std::string m_sConfigFilePath;
 	std::unique_ptr<boost::property_tree::ptree> m_spPropertyTree;
 
-	void initializeConfigFile();
+	bool initializeConfigFile();
 	void setupLoggerConfig();
 	void setupSpotifyConfig();
 	void setupReaderConfig();

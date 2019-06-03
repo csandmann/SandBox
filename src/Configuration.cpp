@@ -6,7 +6,6 @@
  */
 
 #include "Configuration.h"
-#include "../Resources/generated_config.h"
 #include <chrono>
 #include <cstdio>
 #include <memory>
@@ -14,26 +13,27 @@
 ClConfiguration::ClConfiguration() :
 	m_sConfigFilePath("config.ini")
 {
-	initializeConfigFile();
+	bool bSuccess = initializeConfigFile();
+	if (!bSuccess)
+		return;
 	setupLoggerConfig();
 	setupSpotifyConfig();
 	setupReaderConfig();
 	setupWebserverConfig();
 }
 
-void ClConfiguration::initializeConfigFile()
+bool ClConfiguration::initializeConfigFile()
 {
 	m_spPropertyTree.reset(new boost::property_tree::ptree());
 	try
 	{
 		boost::property_tree::ini_parser::read_ini(m_sConfigFilePath.c_str(), *m_spPropertyTree.get());
+		return true;
 	}
 	catch (...)
 	{
-		FILE* pConfig = std::fopen(m_sConfigFilePath.c_str(), "w");
-		std::fprintf(pConfig, "%s", pcConfig_content);
-		std::fclose(pConfig);
-		boost::property_tree::ini_parser::read_ini(m_sConfigFilePath.c_str(), *m_spPropertyTree.get());
+		std::cerr << "Could not find ./config.ini!" << std::endl;
+		return false;
 	}
 }
 
