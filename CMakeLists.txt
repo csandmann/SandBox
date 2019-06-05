@@ -10,40 +10,46 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 #add files and target sandbox
 if (DEVELOPMENT)
-	file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h)
+	file(GLOB_RECURSE sources src/*.cpp src/*.h)
 	list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/src/ReaderPlugins/ReaderMFRC522.cpp")
 else (DEVELOPMENT)
-	file(GLOB_RECURSE sources src/*.cpp src/*.h Resources/*.cpp Resources/*.h 3rdParty/*.cpp 3rdParty/*.h)
+	file(GLOB_RECURSE sources src/*.cpp src/*.h 3rdParty/*.cpp 3rdParty/*.h)
 	list(REMOVE_ITEM sources "${CMAKE_SOURCE_DIR}/3rdParty/RPi-RFID/Read.cpp")
 endif(DEVELOPMENT)
 add_executable(SandBox ${sources})
 
 #check if dependencies are available
-set(Boost_USE_STATIC_LIBS ON)
+#set(Boost_USE_STATIC_LIBS ON)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(Threads REQUIRED)
-find_package(ZLIB REQUIRED)
-
+find_package(OpenSSL REQUIRED)
 #add cpprest
-find_path(CPPREST_INCLUDE_DIR "cpprest/http_client.h")
+if (CPPREST_BUILD_DIR)
+	set(LIBCPPREST "${CPPREST_DIR}/Release/Binaries/libcpprest.a")
+	message("LIBCPPREST=${LIBCPPREST}")
+	set(CPPREST_INCLUDE_DIR "${CPPREST_DIR}/include")
+	message("CPPREST_INCLUDE_DIR=${CPPREST_INCLUDE_DIR}")
+else(CPPREST_BUILD_DIR)
+	set(cpprestsdk_DIR /usr/lib/${CMAKE_LIBRARY_ARCHITECTURE}/cmake)
+	find_package(cpprestsdk REQUIRED)
+	find_path(CPPREST_INCLUDE_DIR "cpprest/http_client.h")
+	find_library(LIBCPPREST libcpprest.so)
+endif(CPPREST_BUILD_DIR)
 
-#compilation and linking linking
-if(MSVC)
-  target_compile_options(SandBox PRIVATE /W4)
-elseif(UNIX)
-  target_compile_options(SandBox PRIVATE -Wall -std=c++11 -O3)
-endif(MSVC)
+#compilation
+target_compile_options(SandBox PRIVATE -Wall -std=c++11 -O3)
+
+#include dirs
 target_include_directories(SandBox PRIVATE ${Boost_INCLUDE_DIRS} ${CPPREST_INCLUDE_DIR})
 
 if(DEVELOPMENT)
 	message("BUILDING DEVELOPMENT")
 	add_definitions(-DDEVELOPMENT)
-	find_package(OpenSSL REQUIRED)
-	target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost)
+	target_link_libraries(SandBox PRIVATE ${LIBCPPREST} ${OPENSSL_LIBRARIES} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} Boost::boost)
 else(DEVELOPMENT)
 	message("BUILDING DEPLOYMENT")
-	find_package(OpenSSL REQUIRED)
-	target_link_libraries(SandBox PRIVATE ${ZLIB_LIBRARIES} cpprest ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} ${OPENSSL_LIBRARIES} Boost::boost bcm2835)
+	find_library(LIBBCM2835 libbcm2835.a)
+	target_link_libraries(SandBox PRIVATE ${LIBCPPREST} ${OPENSSL_LIBRARIES} ${Boost_SYSTEM_LIBRARY} ${Boost_FILESYSTEM_LIBRARY} ${CMAKE_THREAD_LIBS_INIT} Boost::boost ${LIBBCM2835})
 endif(DEVELOPMENT)
 
 
@@ -69,7 +75,6 @@ SET(CPACK_PACKAGE_VERSION_PATCH "${SandBox_VERSION_PATCH}")
 SET(CPACK_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${SandBox_VERSION_MAJOR}.${SandBox_VERSION_MINOR}.${SandBox_VERSION_PATCH}")
 SET(CPACK_SOURCE_PACKAGE_FILE_NAME "${CMAKE_PROJECT_NAME}_${SandBox_VERSION_MAJOR}.${SandBox_VERSION_MINOR}.${SandBox_VERSION_PATCH}")
 SET(CPACK_DEBIAN_PACKAGE_DEPENDS "libssl1.1")
-
 SET(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 SET(CPACK_DEBIAN_PACKAGE_SECTION "Sound")
 SET(CPACK_DEBIAN_ARCHITECTURE ${CMAKE_SYSTEM_PROCESSOR})
