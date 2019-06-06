@@ -50,11 +50,10 @@ endif(DEVELOPMENT)
 
 #CPACK
 install(DIRECTORY Resources DESTINATION /opt/sandbox)
-install(FILES Resources/setupSandbox.py DESTINATION /opt/sandbox)
-install(FILES Resources/removeSandbox.py DESTINATION /opt/sandbox)
+install(FILES Resources/setupSandbox.sh DESTINATION /opt/sandbox PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
+install(FILES Resources/removeSandbox.sh DESTINATION /opt/sandbox PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 install(FILES LICENSE DESTINATION /opt/sandbox)
-install(FILES LICENSE_3rdParty DESTINATION /opt/sandbox)
-install(FILES Resources/configure.py DESTINATION /opt/sandbox)
+install(FILES LICENSE_3rdParty.md DESTINATION /opt/sandbox)
 install(FILES ${LIBRESPOT_PATH}/target/release/librespot DESTINATION /opt/sandbox PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ GROUP_EXECUTE GROUP_READ WORLD_EXECUTE WORLD_READ)
 install(TARGETS SandBox DESTINATION /opt/sandbox)
 
