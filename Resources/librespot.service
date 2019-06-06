@@ -3,12 +3,12 @@ Description=librespot
 After=network.target
 
 [Service]
-ExecStart={PATH_TO_LIBRESPOT_EXEC} --name SandBox -u "{SPOTIFY_USERNAME}" -p "{SPOTIFY_PASSWORD}"
-WorkingDirectory={PATH_TO_LIBRESPOT_EXEC_DIR}
+execStart=/opt/sandbox/librespot --name SandBox -u "{spotify_username:}" -p "{spotify_password:}"
+WorkingDirectory=/opt/sandbox
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User={USERNAME}
+User={username:}
 
 [Install]
 WantedBy=multi-user.target

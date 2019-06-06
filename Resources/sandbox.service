@@ -1,0 +1,14 @@
+[Unit]
+Description=sandbox
+After=network.target
+
+[Service]
+ExecStart=/opt/sandbox/SandBox
+WorkingDirectory=/opt/sandbox
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User={username:}
+
+[Install]
+WantedBy=multi-user.target
