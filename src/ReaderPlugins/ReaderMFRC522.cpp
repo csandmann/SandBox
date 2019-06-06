@@ -93,7 +93,8 @@ std::vector<unsigned char> ClReaderMFRC522::readDetectedCard()
 		return vcData;
 	}
 	//get total length of data to read
-	int nDataSize = *(reinterpret_cast<int*>(&acBuffer[3]));
+	int nDataSize = 0;
+	std::memcpy(&nDataSize, &acBuffer[3], sizeof(int));
 	//copy first chunk and proceed
 	vcData.resize(nDataSize);
 	int nToRead = std::min(nDataSize, (int)(BLOCK_SIZE-sizeof(int)-3));
@@ -243,6 +244,6 @@ void ClReaderMFRC522::resetReaderHard()
 
 void ClReaderMFRC522::resetReader()
 {
-	byte nStatus = m_oReader.PICC_HaltA();
+	m_oReader.PICC_HaltA();
 	m_oReader.PCD_StopCrypto1();
 }
