@@ -40,9 +40,10 @@ Next prepare your Spotify Developer account:
     sudo /opt/sandbox/setupSandbox.sh
 ```
 After completing, this script will tell you which redirect URI you need to whitelist in your spotify developer account.
+
 5. Connect the RFID Reader as described in https://github.com/paguz/RPi-RFID
 6. Restart to make all changes effective
-7. To uninstall, simply run `sudo /opt/sandbox/setupSandbox.sh`
+7. To uninstall, simply run `sudo /opt/sandbox/removeSandbox.sh` and after that `sudo apt remove sandbox`
 
 This is it, you can now use your SandBox.
 To see the log visit http://sandbox
