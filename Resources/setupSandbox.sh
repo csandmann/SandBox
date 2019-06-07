@@ -20,14 +20,15 @@ def _read_write_config_file(src, dst, config):
 
 def main():
     _check_sudo_permissions()
-    librespot_service_keys = ('spotify_username', 'spotify_password', 'username')
+    librespot_service_keys = ('username', )
+    librespot_keys = ('spotify_username', 'spotify_password')
     sandbox_service_keys = ('username', )
     sandbox_keys = ('hostname', 'client_id', 'client_secret')
     config = {}
     print("--------------------------")
     print("     SandBox Audio")
     print("-------------------------")
-    print("This script will perform the basic configuration of SandBox Audio as a service and will install it as a service."\
+    print("This script will perform the basic configuration of SandBox Audio as a service and will install it as a service. "\
           "After running it, removal of SandBox is only possible by running the script removeSandbox.py")
     print("\nStarting with configuration of SandBox")
     print("----------------------------------------")
@@ -44,7 +45,15 @@ def main():
     _read_write_config_file("/opt/sandbox/Resources/librespot.service", "/etc/systemd/system/librespot.service", {key: config[key] for key in librespot_service_keys})
     _read_write_config_file("/opt/sandbox/Resources/sandbox.service", "/etc/systemd/system/sandbox.service", {key: config[key] for key in sandbox_service_keys})
     _read_write_config_file("/opt/sandbox/Resources/config.ini", "/opt/sandbox/config.ini", {key: config[key] for key in sandbox_keys})
-    print("success!")
+    _read_write_config_file("/opt/sandbox/Resources/startLibrespot.sh", "/opt/sandbox/startLibrespot.sh", {key: config[key] for key in librespot_keys})
+    print("Enabling services sandbox.service and librespot.service")
+    print("----------------------------------------")
+    os.execute("systemctl enable sandbox.service")
+    os.execute("systemctl enable librespot.service")
+    print("Please add ")
+    print("         http://{}:80/spotify/auth_receiver".format(config['hostname']))
+    print("to your redirect URIs under your Spotify Developer Account")
+    print("Success")
 
 if __name__=='__main__':
     main()

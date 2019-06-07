@@ -2,6 +2,7 @@
 
 import os
 import sys
+import shutil
 
 def _check_sudo_permissions():
     try:
@@ -13,6 +14,11 @@ def _check_sudo_permissions():
         sys.stderr.write("Please run this script as sudo!\n")
         quit(1)
 
+def _safe_remove_dir(dir_path):
+    try:
+        shutil.rmtree(dir_path)
+    except FileNotFoundError:
+        print("Dir {} not found".format(file_path))
 
 def _safe_remove(file_path):
     try:
@@ -28,8 +34,14 @@ def main():
         quit(0)
     _safe_remove("/etc/systemd/system/librespot.service")
     _safe_remove("/etc/systemd/system/sandbox.service")
+    _safe_remove("/etc/systemd/system/start_librespot.sh")
     _safe_remove("/opt/sandbox/config.ini")
-    print("success!")
+    _safe_remove("/opt/sandbox/sandbox.log")
+    _safe_remove_dir("/opt/sandbox/cache")
+    print("Disabling services")
+    os.execute("systemctl disable sandbox.service")
+    os.execute("systemctl disable librespot.service")
+    print("success! It is now safe to uninstall the sandbox")
 
 if __name__=='__main__':
     main()

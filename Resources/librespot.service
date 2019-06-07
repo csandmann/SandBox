@@ -3,7 +3,7 @@ Description=librespot
 After=network.target
 
 [Service]
-ExecStart=/opt/sandbox/librespot --name SandBox -u "{spotify_username:}" -p "{spotify_password:}"
+ExecStart=/opt/sandbox/startLibrespot.sh
 WorkingDirectory=/opt/sandbox
 StandardOutput=inherit
 StandardError=inherit
