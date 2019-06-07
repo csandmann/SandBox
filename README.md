@@ -27,27 +27,29 @@ You will need to buy/setup
 * A Spotify Premium and a Spotify Developer account (register the latter on free under https://developer.spotify.com
 Note that a Spotify Developer account is necessary, since the SandBox is an app which has the capability to control your Spotify account. 
 To make such actions tracable, Spotify requires all such apps to be linked to some developer account.
-
 Next prepare your Spotify Developer account:
 1. Got to https://developer.spotify.com -> Dashboard -> Login
-2. Click "Create an App", add a new App called "SandBox" and fill in all settings
-3. Under "Redirect URIs" fill in *http://sandbox/spotify/auth_receiver*
+2. Click "Create an App", add a new App called "SandBox" and fill in all settings.
 
-### Setup (NO RELEASES PUBLISHED YET)
+### Setup
 1. Login to you Raspberry Pi
-1. Download the latest Release and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
 2. Change your Raspberry Pie's to "SandBox" by editing /etc/hostname
-2. Edit librespot.service under *etc/system.d/librespot.service* and replace all parts with curly braces with the correct settings.
-3. Edit the SandBox configuration file */etc/SandBox/config.ini* an replace all parts with curly braces with the correct settings.ClientId and ClientSecret are the ones from your Spotify Developer Account.
-4. Restart to make all changes effective
+3. Download the latest Release and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
+4. Run install script
+```
+    sudo /opt/sandbox/setupSandbox.sh
+```
+After completing, this script will tell you which redirect URI you need to whitelist in your spotify developer account.
 5. Connect the RFID Reader as described in https://github.com/paguz/RPi-RFID
+6. Restart to make all changes effective
+7. To uninstall, simply run `sudo /opt/sandbox/setupSandbox.sh`
 
 This is it, you can now use your SandBox.
 To see the log visit http://sandbox
 To write Spotify-RFID cards, simply place a blank card on the player and visit http://sandbox/spotify
 
 
-## Build Instructions
+## Build Instructions (Not necessary for deployment)
 The SandBox can be conveniently built using cmake. First install all dependencies:
 ```
 apt install git, cmake, build-essential, libcpprest-dev
@@ -60,14 +62,16 @@ git submodule update --init --recursive
 mkdir build
 ```
 
-### Deployment
-To build the SandBox for deployment, simply use
+### Deployment Build
+For deployment, [cpprest](https://github.com/microsoft/cpprestsdk) is linked statically. So you need to build and install cpprest yourself (see https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-Linux).
+After installing cpprest, simply use
 ```
 cmake ..
 ```
+to build the SandBox.
 
-### Development
-To enable development outside the RaspberryPi, the SandBox comes with a mock-reader, which implements the `ClReaderBase::read()` and `ClReaderBase::write(std::vector<unsigned char> &vcData)` as simply reading/writing from/to a file. This allows convenient development on a different system. To build the SandBox for development, simply use
+### Development Build
+To enable development outside the RaspberryPi, the SandBox comes with a mock-reader, which implements the `ClReaderBase::read()` and `ClReaderBase::write(const std::vector<unsigned char> &vcData)` as simply reading/writing from/to a file. This allows convenient development on a different system. To build the SandBox for development, simply use
 ```
 cmake -DDEVELOPMENT=1 ..
 ```
@@ -85,14 +89,13 @@ cmake -DDEVELOPMENT=1 ..
 	* [librespot](https://github.com/librespot-org/librespot)
 
 ## ToDo
-### Top Priority
-* Create a DEB installer package for the Raspberry-Pi Zero
 ### Medium Priority
 * Integrate play/pause, next, previous buttons
 * Integrate a speaker and a rotary encoder for volumen control
 * Make the plugin interfaces C-Interfaces
 * Refactor workflow to load the plugin configurations.
 * Integrate playback of local audio files
+* Integrate rotating log-files
 
 ## Licenses
 This project is licensed under *Open Source Licensing GPL V3* (see LICENSE.txt for details). License texts of 3rd Party applications can be found in LICENSE_3rdParty.md These other licenses are
@@ -100,5 +103,5 @@ This project is licensed under *Open Source Licensing GPL V3* (see LICENSE.txt f
 * [cpprest](https://github.com/microsoft/cpprestsdk) is licensed under the *MIT License*
 * [libbcm2835](https://www.airspayce.com/mikem/bcm2835) is licensensed under *Open Source Licensing GPL V2*
 * [librespot](https://github.com/librespot-org/librespot) is licensed under the *MIT License*
-* RPi-RFID: ?
+* [RPi-RFID](https://github.com/paguz/RPi-RFID): Author contacted, probably licensed under UNLICENSE as the parent project (https://github.com/miguelbalboa/rfid)
 
