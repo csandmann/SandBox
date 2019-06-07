@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(SandBox)
-set(SandBox_VERSION_MAJOR 1)
-set(SandBox_VERSION_MINOR 0)
+set(SandBox_VERSION_MAJOR 19)
+set(SandBox_VERSION_MINOR 6)
 set(SandBox_VERSION_PATCH 0)
 
 set(LIBRESPOT_PATH /home/pi/Projects/librespot)
