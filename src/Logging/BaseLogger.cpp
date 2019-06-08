@@ -9,6 +9,7 @@
 #include <sstream>
 #include <fstream>
 #include <ctime>
+#include <cstdio>
 
 ClBaseLogger::ClBaseLogger(const StLoggerConfig *const poLoggerConfig) :
 m_oConfig(poLoggerConfig ? *poLoggerConfig : StLoggerConfig())
@@ -17,9 +18,10 @@ m_oConfig(poLoggerConfig ? *poLoggerConfig : StLoggerConfig())
 	{
 		throw std::runtime_error("poLoggerConfig must not be 0!");
 	}
+	std::remove(poLoggerConfig->sLogFilePath.c_str());
 }
 
-ClBaseLogger* ClBaseLogger::getInstance(const StLoggerConfig *const poLoggerConfig)
+ClBaseLogger* ClBaseLogger::getInstance(const StLoggerConfig *const poLoggerConfig /*=nullptr*/)
 {
 	static ClBaseLogger oLogger{poLoggerConfig};
 	return &oLogger;

@@ -54,6 +54,7 @@ void ClConfiguration::setupSpotifyConfig()
 	std::string sCacheDir = getValue<std::string>("SandBox.cacheDirectory");
 	std::string sDevice = getValue<std::string>("Spotify.device");
 	std::string sResourceDir = getValue<std::string>("SandBox.resourceDirectory");
+	int nDefaultVolume = getValue<int>("Spotify.defaultVolume");
 
 	m_oSpotifyConfig.sClientId = sClientId;
 	m_oSpotifyConfig.sClientSecret = sClientSecret;
@@ -62,6 +63,7 @@ void ClConfiguration::setupSpotifyConfig()
 	m_oSpotifyConfig.oCacheDir = fs::path(sCacheDir);
 	m_oSpotifyConfig.sDevice = sDevice;
 	m_oSpotifyConfig.sResourceDir = sResourceDir;
+	m_oSpotifyConfig.nDefaultVolume = nDefaultVolume;
 }
 
 void ClConfiguration::setupWebserverConfig()

@@ -37,6 +37,6 @@ Debug
 #stuff
 config.ini
 cache
-CodeLite
+build
 *.swp
 

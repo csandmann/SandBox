@@ -84,6 +84,11 @@ void ClPlayerSpotify::playContext(const std::string &sMessage)
 void ClPlayerSpotify::execute(const std::vector<unsigned char> &vcMessage)
 {
 	SpotifyMessage::StMessage stMsg = SpotifyMessage::deserialize(vcMessage);
+	//update active device
+	if (m_stActiveDevice.sName != m_oConfig.sDevice)
+	{
+		updateActiveDevice();
+	}
 	switch (stMsg.eCommand)
 	{
 		case SpotifyMessage::ECommand::playTrack: 
@@ -168,7 +173,6 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	bool bPlaybackDeviceFound = false;
 	for (const auto &stDevice : voDeviceList)
 	{
-		m_oLogger.debug(stDevice.sName);
 		if (m_oConfig.sDevice == stDevice.sName)
 		{
 			m_stActiveDevice = stDevice;
@@ -181,7 +185,11 @@ std::string ClPlayerSpotify::updateActiveDevice()
 		}
 	}
 	if (!bPlaybackDeviceFound) {
-		m_oLogger.error("getDeviceList: " + m_oConfig.sDevice + " was not found in active devices. Is it turned on?");
+		m_oLogger.error("getDeviceList: " + m_oConfig.sDevice + " was not found in active devices (" + sAllDevices + "). Is it turned on?");
+	}
+	else
+	{
+			executeSpotifyCommand("https://api.spotify.com/v1/me/player/volume", methods::PUT, "", false, "&volume_percent=" + std::to_string(m_oConfig.nDefaultVolume));
 	}
 	return sAllDevices;
 }
@@ -194,7 +202,7 @@ void ClPlayerSpotify::stop()
 
 bool ClPlayerSpotify::spotifyResponseOk(const http_response &oResponse)
 {
-	if (oResponse.status_code() == status_codes::Accepted) 
+	if (oResponse.status_code() == status_codes::Accepted || oResponse.status_code() == status_codes::NoContent) 
 	{
 		return true;
 	}
@@ -364,7 +372,7 @@ void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 	oRequest.reply(oResponse);        
 }
 
-void ClPlayerSpotify::executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody/*=""*/, const bool bRepeatRequestIfFailed/*=true*/)
+void ClPlayerSpotify::executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody/*=""*/, const bool bRepeatRequestIfFailed/*=true*/, const std::string sQueryParameters/*=""*/)
 {
 	//build request
 	http_request oRequest(eMethod);
@@ -372,7 +380,7 @@ void ClPlayerSpotify::executeSpotifyCommand(const std::string &sUri, const metho
 	oRequest.headers().add(U("Authorization"), utility::string_t(U("Bearer ")) + S2U(m_oAuthModule.getAccessToken()));
 	oRequest.set_body(S2U(sBody));
 	//make request
-	http_client oClient(S2U(sUri) + U("?device_id=") + U(m_stActiveDevice.sId));
+	http_client oClient(S2U(sUri) + U("?device_id=") + U(m_stActiveDevice.sId) + U(sQueryParameters));
 	pplx::task<bool> oTask = oClient.request(oRequest)
 		.then([&](http_response response) {
 		return this->spotifyResponseOk(response); 

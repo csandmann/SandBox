@@ -37,6 +37,7 @@ struct StSpotifyConfig : StPlayerConfig
 	fs::path oCacheDir;
 	std::string sDevice;
 	std::string sResourceDir;
+	int nDefaultVolume;
 };
 StSpotifyAuthorizationConfig authConfigFromSpotifyConfig(const StSpotifyConfig &stSpotifyConfig);
 
@@ -75,7 +76,7 @@ private:
 	void cbkSpotifyMainSite(http_request oRequest);
 	void cbkSpotifyFormReceiver(http_request oRequest);
 	//helper functions
-	void executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody = "", const bool bRepeatRequestIfFailed = true);
+	void executeSpotifyCommand(const std::string &sUri, const method &eMethod, const std::string sBody = "", const bool bRepeatRequestIfFailed = true, const std::string sQueryParameters = "");
 	const utility::string_t buildRedirectUri();
 	bool spotifyResponseOk(const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
