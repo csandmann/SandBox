@@ -18,7 +18,7 @@ def _safe_remove_dir(dir_path):
     try:
         shutil.rmtree(dir_path)
     except FileNotFoundError:
-        print("Dir {} not found".format(file_path))
+        print("Dir {} not found".format(dir_path))
 
 def _safe_remove(file_path):
     try:
@@ -32,15 +32,18 @@ def main():
     if ans != "Yes" and ans != 'y' and ans != 'yes':
         print("Aborting")
         quit(0)
+    print("Disabling services")
+    os.system("systemctl disable sandbox.service")
+    os.system("systemctl disable librespot.service")
+    os.system("systemctl stop sandbox.service")
+    os.system("systemctl stop sandbox.service")
+    print("Removing files")
     _safe_remove("/etc/systemd/system/librespot.service")
     _safe_remove("/etc/systemd/system/sandbox.service")
-    _safe_remove("/etc/systemd/system/start_librespot.sh")
+    _safe_remove("/opt/sandbox/start_librespot.sh")
     _safe_remove("/opt/sandbox/config.ini")
     _safe_remove("/opt/sandbox/sandbox.log")
     _safe_remove_dir("/opt/sandbox/cache")
-    print("Disabling services")
-    os.execute("systemctl disable sandbox.service")
-    os.execute("systemctl disable librespot.service")
     print("success! It is now safe to uninstall the sandbox")
 
 if __name__=='__main__':
