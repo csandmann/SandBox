@@ -168,6 +168,7 @@ std::string ClPlayerSpotify::updateActiveDevice()
 	bool bPlaybackDeviceFound = false;
 	for (const auto &stDevice : voDeviceList)
 	{
+		m_oLogger.debug(stDevice.sName);
 		if (m_oConfig.sDevice == stDevice.sName)
 		{
 			m_stActiveDevice = stDevice;
@@ -193,7 +194,7 @@ void ClPlayerSpotify::stop()
 
 bool ClPlayerSpotify::spotifyResponseOk(const http_response &oResponse)
 {
-	if (oResponse.status_code() == status_codes::NoContent) 
+	if (oResponse.status_code() == status_codes::Accepted) 
 	{
 		return true;
 	}

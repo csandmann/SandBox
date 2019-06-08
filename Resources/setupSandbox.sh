@@ -20,7 +20,7 @@ def _read_write_config_file(src, dst, config):
 
 def main():
     _check_sudo_permissions()
-    librespot_service_keys = ('username', )
+    librespot_service_keys = ()
     librespot_keys = ('spotify_username', 'spotify_password')
     sandbox_service_keys = ('username', )
     sandbox_keys = ('hostname', 'client_id', 'client_secret')
@@ -46,10 +46,11 @@ def main():
     _read_write_config_file("/opt/sandbox/Resources/sandbox.service", "/etc/systemd/system/sandbox.service", {key: config[key] for key in sandbox_service_keys})
     _read_write_config_file("/opt/sandbox/Resources/config.ini", "/opt/sandbox/config.ini", {key: config[key] for key in sandbox_keys})
     _read_write_config_file("/opt/sandbox/Resources/startLibrespot.sh", "/opt/sandbox/startLibrespot.sh", {key: config[key] for key in librespot_keys})
+    os.chmod("/opt/sandbox/startLibrespot.sh", 0o700)
     print("Enabling services sandbox.service and librespot.service")
     print("----------------------------------------")
-    os.execute("systemctl enable sandbox.service")
-    os.execute("systemctl enable librespot.service")
+    os.system("systemctl enable sandbox.service")
+    os.system("systemctl enable librespot.service")
     print("Please add ")
     print("         http://{}:80/spotify/auth_receiver".format(config['hostname']))
     print("to your redirect URIs under your Spotify Developer Account")

@@ -8,7 +8,6 @@ WorkingDirectory=/opt/sandbox
 StandardOutput=inherit
 StandardError=inherit
 Restart=always
-User={username:}
 
 [Install]
 WantedBy=multi-user.target
