@@ -28,13 +28,13 @@ You will need to buy/setup
 Note that a Spotify Developer account is necessary, since the SandBox is an app which has the capability to control your Spotify account. 
 To make such actions tracable, Spotify requires all such apps to be linked to some developer account.
 Next prepare your Spotify Developer account:
-1. Got to https://developer.spotify.com -> Dashboard -> Login
-2. Click "Create an App", add a new App called "SandBox" and fill in all settings.
+	* Got to https://developer.spotify.com -> Dashboard -> Login
+	* Click "Create an App", add a new App called "SandBox" and fill in all settings.
 
 ### Setup
 1. Login to you Raspberry Pi
 2. Change your Raspberry Pie's to "SandBox" by editing /etc/hostname
-3. Download the latest Release and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
+3. Download the latest [Release](https://github.com/csandmann/SandBox/releases) and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
 4. Run install script
 ```
     sudo /opt/sandbox/setupSandbox.sh
@@ -42,13 +42,10 @@ Next prepare your Spotify Developer account:
 After completing, this script will tell you which redirect URI you need to whitelist in your spotify developer account.
 
 5. Connect the RFID Reader as described in https://github.com/paguz/RPi-RFID
-6. Restart to make all changes effective
-7. To uninstall, simply run `sudo /opt/sandbox/removeSandbox.sh` and after that `sudo apt remove sandbox`
+6. To uninstall, simply run `sudo /opt/sandbox/removeSandbox.sh` and after that `sudo apt remove sandbox`
 
 This is it, you can now use your SandBox.
-To see the log visit http://sandbox
-To write Spotify-RFID cards, simply place a blank card on the player and visit http://sandbox/spotify
-
+To see the log visit http://sandbox. To write Spotify-RFID cards, simply place a blank card on the player and visit http://sandbox/spotify Choose the correct playback type and enter the Spotify URI of the medium (Spotify desktop app -> right-click -> share -> Copy Spotify URI)
 
 ## Build Instructions (Not necessary for deployment)
 The SandBox can be conveniently built using cmake. First install all dependencies:
@@ -61,15 +58,19 @@ git clone https://github.com/check0104/SandBox.git
 cd SandBox
 git submodule update --init --recursive
 mkdir build
+cd build
 ```
 
 ### Deployment Build
-For deployment, [cpprest](https://github.com/microsoft/cpprestsdk) is linked statically. So you need to build and install cpprest yourself (see https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-Linux).
-After installing cpprest, simply use
+For deployment, [cpprest](https://github.com/microsoft/cpprestsdk) is linked statically. So you need to build and install cpprest yourself (see https://github.com/Microsoft/cpprestsdk/wiki/How-to-build-for-Linux). Also, install the [libbcm2835](https://www.airspayce.com/mikem/bcm2835/)
+After installing both componentents, simply run
 ```
 cmake ..
 ```
-to build the SandBox.
+to build the SandBox run
+```
+cpack ..
+```
 
 ### Development Build
 To enable development outside the RaspberryPi, the SandBox comes with a mock-reader, which implements the `ClReaderBase::read()` and `ClReaderBase::write(const std::vector<unsigned char> &vcData)` as simply reading/writing from/to a file. This allows convenient development on a different system. To build the SandBox for development, simply use
@@ -81,7 +82,7 @@ cmake -DDEVELOPMENT=1 ..
 * Main Application
 	* [BOOST](https://www.boost.org)
 	* [cpprest](https://github.com/microsoft/cpprestsdk)
-* ReaderMRC522
+* ReaderMFRC522
 	* [RPi-RFID](https://github.com/paguz/RPi-RFID)
 	* [libbcm2835](https://www.airspayce.com/mikem/bcm2835/)
 * PlayerSpotify
