@@ -13,7 +13,7 @@ The Spotify plugin actually is Spotify-Controller: It uses the official Spotify 
 An easy way to turn a Raspberry-Pi into a standalone music player is e.g. to use [librespot](https://github.com/librespot-org/librespot) to create a local Spotify playback device and then to use the SandBox to control it. 
 Note that up to now, you will need to have a premium subscription, since the Spotify API is not available for free accounts.
 
-## Setup Instuction on the Raspberry Pi
+## Setup Instuction on the Raspberry Pi Zero
 This section describes how the SandBox can be set up on a Raspberry Pi Zero running Raspbebian Lite. 
 
 ### Prerequisites
