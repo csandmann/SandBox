@@ -14,7 +14,7 @@ An easy way to turn a Raspberry-Pi into a standalone music player is e.g. to use
 Note that up to now, you will need to have a premium subscription, since the Spotify API is not available for free accounts.
 
 ## Setup Instuction on the Raspberry Pi
-This section describes how the SandBox can be set up on a Raspberry Pi Zero running Raspbebian Lite. Note that the Pi-Model and the OS are mostly interchangable.
+This section describes how the SandBox can be set up on a Raspberry Pi Zero running Raspbebian Lite. 
 
 ### Prerequisites
 You will need to buy/setup
