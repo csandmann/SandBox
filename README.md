@@ -1,15 +1,14 @@
-# SandBox
-The SandBox is a plugin-based, lean RFID controlled music player developed for the RaspberryPi and written in C++. 
+# SandBox Audio
+The SandBox is a modular, lean RFID controlled music player developed for the RaspberryPi and written in C++. 
 It is intended as an open-source alternative to devices such as the TonieBox, TigerBox, Jooki, Hörbert etc. 
 In contrast to more advanced projects like e.g. the [PhonieBox](https://github.com/MiczFlor/RPi-Jukebox-RFID), the SandBox has a significantly reduced functionalty, worse optics and most definitely more bugs. 
-However, it was designed with plugin-based structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music. Also, the SandBox is written in pure C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
-Up to now, available plugins are a controller for the MFRC522 RFID reader and for Spotify.
+The SandBox was designed with a modular structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music. Also, the SandBox is written in C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
 
 ![SandBox](/misc/SandBox.jpg)
 
-## Plugin Descriptions
+## Player Plugin Descriptions
 
-### Spotify
+### Spotify Plugin
 The Spotify plugin actually is Spotify-Controller: It uses the official Spotify API to send playback/pause/stop commands to your existing Spotify playback devices. 
 *Note that this means that if you already have a Spotify Music Player, the SandBox can be trivially configured to trigger playback on this existing player.*
 An easy way to turn a Raspberry-Pi into a standalone music player is e.g. to use [librespot](https://github.com/librespot-org/librespot) to create a local Spotify playback device and then to use the SandBox to control it. 
@@ -69,7 +68,11 @@ After installing both componentents, simply run
 ```
 cmake ..
 ```
-to build the SandBox run
+and then 
+```
+make
+```
+To build the .deb package simply run
 ```
 cpack ..
 ```
