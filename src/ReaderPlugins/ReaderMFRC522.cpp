@@ -33,7 +33,7 @@ const std::vector<unsigned char> ClReaderMFRC522::read()
 {
 	//check if a card is there
 	bool bNewCard = false;
-	for (unsigned int i = 0; i < m_oReaderConfig.nReadAttempts)
+	for (unsigned int i = 0; i < m_oReaderConfig.nReadAttempts; i++)
 	{
 		bNewCard = m_oReader.PICC_IsNewCardPresent();
 		if (!bNewCard)
