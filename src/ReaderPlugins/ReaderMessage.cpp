@@ -20,6 +20,7 @@ namespace ReaderMessage
 	{
 			stMsg.eStatus = EStatus::EMPTY;
 			StCardData stClearedData;
+			stClearedData.nVersionNumber = -1;
 			stMsg.stCardData = stClearedData;
 	}
 	

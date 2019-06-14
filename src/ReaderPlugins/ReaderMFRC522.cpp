@@ -32,10 +32,19 @@ ClReaderMFRC522::~ClReaderMFRC522() {}
 const std::vector<unsigned char> ClReaderMFRC522::read()
 {
 	//check if a card is there
-	bool bNewCard = m_oReader.PICC_IsNewCardPresent();
-	if (!bNewCard)
+	bool bNewCard = false;
+	for (unsigned int i = 0; i < m_oReaderConfig.nReadAttempts)
 	{
 		bNewCard = m_oReader.PICC_IsNewCardPresent();
+		if (!bNewCard)
+		{
+			bNewCard = m_oReader.PICC_IsNewCardPresent();
+		}
+		if (bNewCard)
+		{
+			break;
+		}
+		std::this_thread::sleep_for(m_oReaderConfig.nReadAttemptInterval);
 	}
 	//Workflow
 	if (bNewCard && !m_bCardDetected)
