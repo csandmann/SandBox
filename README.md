@@ -95,6 +95,8 @@ cmake -DDEVELOPMENT=1 ..
 ## ToDo
 ### Top Priorities
 * Bugfixes (see Release section for known issues)
+* Change spotify web interface to handle both URLs and URIs, remove album/playlist options and parse them from the URL
+* Continue playlists where it was stopped, add 'reset' button
 ### Medium Priority
 * Integrate play/pause, next, previous buttons
 * Integrate a speaker and a rotary encoder for volumen control
