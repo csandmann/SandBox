@@ -38,7 +38,7 @@ int main() {
 	ClManager oManager(&oReader);
 	oManager.registerPlayer(&oPlayerSpotify);
 	//start threads
-	std::thread oReaderThread = std::thread(&ClReaderFile::start, &oReader);
+	std::thread oReaderThread = std::thread(&ClReaderBase::start, &oReader);
 	std::thread oManagerThread = std::thread(&ClManager::start, &oManager);
 	//wait for threads to finish
 	oManagerThread.join();

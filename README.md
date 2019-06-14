@@ -5,6 +5,8 @@ In contrast to more advanced projects like e.g. the [PhonieBox](https://github.c
 However, it was designed with plugin-based structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music. Also, the SandBox is written in pure C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
 Up to now, available plugins are a controller for the MFRC522 RFID reader and for Spotify.
 
+![SandBox](/misc/SandBox.jpg)
+
 ## Plugin Descriptions
 
 ### Spotify
@@ -91,6 +93,8 @@ cmake -DDEVELOPMENT=1 ..
 	* [librespot](https://github.com/librespot-org/librespot)
 
 ## ToDo
+### Top Priorities
+* Bugfixes (see Release section for known issues)
 ### Medium Priority
 * Integrate play/pause, next, previous buttons
 * Integrate a speaker and a rotary encoder for volumen control
