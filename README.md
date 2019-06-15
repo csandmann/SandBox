@@ -2,7 +2,8 @@
 The SandBox is a modular, lean RFID controlled music player developed for the RaspberryPi and written in C++. 
 It is intended as an open-source alternative to devices such as the TonieBox, TigerBox, Jooki, Hörbert etc. 
 In contrast to more advanced projects like e.g. the [PhonieBox](https://github.com/MiczFlor/RPi-Jukebox-RFID), the SandBox has a significantly reduced functionalty, worse optics and most definitely more bugs. 
-The SandBox was designed with a modular structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music. Also, the SandBox is written in C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
+The SandBox was designed with a modular structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music in the future. Also, the SandBox is written in C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
+The current version comes with integrated Spotify support using a precompiled version of the [librespot](https://github.com/librespot-org/librespot).
 
 ![SandBox](/misc/SandBox.jpg)
 
@@ -11,8 +12,10 @@ The SandBox was designed with a modular structure in mind, allowing the easy int
 ### Spotify Plugin
 The Spotify plugin actually is Spotify-Controller: It uses the official Spotify API to send playback/pause/stop commands to your existing Spotify playback devices. 
 *Note that this means that if you already have a Spotify Music Player, the SandBox can be trivially configured to trigger playback on this existing player.*
-An easy way to turn a Raspberry-Pi into a standalone music player is e.g. to use [librespot](https://github.com/librespot-org/librespot) to create a local Spotify playback device and then to use the SandBox to control it. 
+The current version of the SandBox uses the [librespot](https://github.com/librespot-org/librespot) to create a local Spotify playback device, which is controlled via the RFID commands.
 Note that up to now, you will need to have a premium subscription, since the Spotify API is not available for free accounts.
+#### Usage
+To write Spotify-RFID cards, simply place a RFID card on the player and visit http://sandbox/spotify. Choose the correct playback type and enter the Spotify URI of the medium (Spotify desktop app -> right-click -> share -> Copy Spotify URI)
 
 ## Setup Instuction on the Raspberry Pi Zero
 This section describes how the SandBox can be set up on a Raspberry Pi Zero running Raspbebian Lite. 
@@ -21,7 +24,7 @@ This section describes how the SandBox can be set up on a Raspberry Pi Zero runn
 You will need to buy/setup
 * A Raspberry Pi Zero (W) with Raspbebian Lite and configured WiFi connection
 * An MFRC522 RFID Reader
-* A nice box to fit everything in
+* MIFARE Classic RFID Cards
 * A Mini-HDMI to 3.5" audio adapter
 * Stereo Speakers
 * Some wires and a soldering iron to connect the reader to the Raspberry Pi
@@ -45,8 +48,7 @@ After completing, this script will tell you which redirect URI you need to white
 5. Connect the RFID Reader as described in https://github.com/paguz/RPi-RFID
 6. To uninstall, simply run `sudo /opt/sandbox/removeSandbox.sh` and after that `sudo apt remove sandbox`
 
-This is it, you can now use your SandBox.
-To see the log visit http://sandbox. To write Spotify-RFID cards, simply place a blank card on the player and visit http://sandbox/spotify Choose the correct playback type and enter the Spotify URI of the medium (Spotify desktop app -> right-click -> share -> Copy Spotify URI)
+This is it, you can now use your SandBox. To see the log visit http://sandbox. 
 
 ## Build Instructions (Not necessary for deployment)
 The SandBox can be conveniently built using cmake. First install all dependencies:
@@ -71,10 +73,6 @@ cmake ..
 and then 
 ```
 make
-```
-To build the .deb package simply run
-```
-cpack ..
 ```
 
 ### Development Build
