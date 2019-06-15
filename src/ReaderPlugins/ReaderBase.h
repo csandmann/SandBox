@@ -18,8 +18,6 @@
 struct StReaderConfig
 {
 	std::chrono::milliseconds nReadInterval;
-	std::chrono::milliseconds nReadAttemptInterval;
-	unsigned int nReadAttempts;
 };
 
 class ClReaderBase

@@ -84,8 +84,6 @@ void ClConfiguration::setupReaderConfig()
 {
 	int nReadInterval = getValue<int>("Reader.readIntervalInMs");
 	m_oReaderConfig.nReadInterval = std::chrono::milliseconds(nReadInterval);
-	m_oReaderConfig.nReadAttemptInterval = std::chrono::milliseconds(getValue<int>("Reader.readAttemptIntervalInMs"));
-	m_oReaderConfig.nReadAttempts = getValue<unsigned int>("Reader.readAttempts");
 }
 
 StLoggerConfig ClConfiguration::getLoggerConfig()
