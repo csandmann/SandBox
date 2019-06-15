@@ -81,6 +81,7 @@ private:
 	bool spotifyResponseOk(const http_response &oResponse);
 	boost::format readHtmlTemplateFromFile(const std::string &sFilePath);
 	std::string updateActiveDevice();
+	std::string spotifyUrl2spotifyUri(const std::string sUrl);
 };
 
 

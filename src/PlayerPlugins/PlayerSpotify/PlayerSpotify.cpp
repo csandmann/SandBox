@@ -342,6 +342,18 @@ void ClPlayerSpotify::cbkSpotifyFormReceiver(http_request oRequest)
 		else {
 			return;
 		}
+		//handle URLs
+		if (sMessage.find("https://open.spotify.com") != std::string::npos)
+		{
+			sMessage = spotifyUrl2spotifyUri(sMessage);
+		}
+		else if (sMessage.find("spotify:") != std::string::npos)
+		{}
+		else
+		{
+			this->m_oLogger.warn("cbkSpotifyFormReceiver: Could not handle message " + sMessage);
+			return;
+		}
 		//build message to write
 		//this->m_oLogger.debug("cbkSpotifyFormReceiver: Command/Message: " + std::to_string(eCmd) + " / " + sMessage);
 		SpotifyMessage::StMessage stMsg;
@@ -399,4 +411,14 @@ void ClPlayerSpotify::executeSpotifyCommand(const std::string &sUri, const metho
 			executeSpotifyCommand(sUri, eMethod, sBody, false);
 	}
 	
+}
+std::string ClPlayerSpotify::spotifyUrl2spotifyUri(const std::string sUrl)
+{
+	std::vector<utility::string_t> vsParts = uri::split_path(uri(S2U(sUrl)).path());
+	if (vsParts.size() != 2)
+	{
+		return "";
+	}
+	utility::string_t sUri = S2U("spotify:") + vsParts[0] + S2U(":") + vsParts[1];
+	return U2S(sUri);
 }
