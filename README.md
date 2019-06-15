@@ -1,7 +1,6 @@
 # SandBox Audio
 The SandBox is a modular, lean RFID controlled music player developed for the RaspberryPi and written in C++. 
-It is intended as an open-source alternative to devices such as the TonieBox, TigerBox, Jooki, Hörbert etc. 
-In contrast to more advanced projects like e.g. the [PhonieBox](https://github.com/MiczFlor/RPi-Jukebox-RFID), the SandBox has a significantly reduced functionalty, worse optics and most definitely more bugs. 
+It is intended as an open-source alternative to devices such as the TonieBox, TigerBox, Jooki, Hörbert etc. Note that the SandBox still is in an early stage of development and thus lacks features, comfort and design of those commercial products.
 The SandBox was designed with a modular structure in mind, allowing the easy integration e.g. local audio files, GooglePlay or Apple Music in the future. Also, the SandBox is written in C++, which might come in handy if you want to port it to different platforms (see section Third Party Dependencies).
 The current version comes with integrated Spotify support using a precompiled version of the [librespot](https://github.com/librespot-org/librespot).
 
