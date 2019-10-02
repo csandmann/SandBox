@@ -1,0 +1,30 @@
+{
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "g++ build active file",
+            "command": "/usr/bin/g++",
+            "args": [
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}/${fileBasenameNoExtension}"
+            ],
+            "options": {
+                "cwd": "/usr/bin"
+            }
+        },
+        {
+            "type": "shell",
+            "label": "make all",
+            "command": "make",
+            "args": [
+                "-j2"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build"
+            }
+        }
+    ],
+    "version": "2.0.0"
+}
