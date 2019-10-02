@@ -37,7 +37,7 @@ Next prepare your Spotify Developer account:
 ### Setup
 1. Login to you Raspberry Pi
 2. Change your Raspberry Pie's to "SandBox" by editing /etc/hostname
-3. Download the latest [Release](https://github.com/csandmann/SandBox/releases) and install it by running `apt install SandBoxWithLibrespot_19.6.0.deb`
+3. Download the latest [Release](https://github.com/csandmann/SandBox/releases) and install it by running `apt install SandBoxWithLibrespot_{VERSION}.deb`
 4. Run install script
 ```
     sudo /opt/sandbox/setupSandbox.sh
@@ -47,7 +47,7 @@ After completing, this script will tell you which redirect URI you need to white
 5. Connect the RFID Reader as described in https://github.com/paguz/RPi-RFID
 6. To uninstall, simply run `sudo /opt/sandbox/removeSandbox.sh` and after that `sudo apt remove sandbox`
 
-This is it, you can now use your SandBox. To see the log visit http://sandbox. 
+This is it, you can now use your SandBox. To see the log visit http://sandbox, to configure spotify visit http://sandbox/spotify
 
 ## Build Instructions (Not necessary for deployment)
 The SandBox can be conveniently built using cmake. First install all dependencies:
@@ -77,7 +77,7 @@ make
 ### Development Build
 To enable development outside the RaspberryPi, the SandBox comes with a mock-reader, which implements the `ClReaderBase::read()` and `ClReaderBase::write(const std::vector<unsigned char> &vcData)` as simply reading/writing from/to a file. This allows convenient development on a different system. To build the SandBox for development, simply use
 ```
-cmake -DDEVELOPMENT=1 ..
+cmake -DDEVELOPMENT=ON ..
 ```
 
 ## Third Party Dependencies
@@ -95,7 +95,7 @@ cmake -DDEVELOPMENT=1 ..
 ## ToDo
 ### Top Priorities
 * Bugfixes (see Release section for known issues)
-* Change spotify web interface to handle both URLs and URIs, remove album/playlist options and parse them from the URL
+* Remove album/playlist options and parse them from the URL
 * Continue playlists where it was stopped, add 'reset' button
 ### Medium Priority
 * Integrate play/pause, next, previous buttons
