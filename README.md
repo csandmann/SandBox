@@ -105,7 +105,7 @@ cmake -DDEVELOPMENT=ON ..
 * Refactor workflow to load the plugin configurations.
 * Integrate playback of local audio files
 * Integrate rotating log-files
-
+ 
 ## Licenses
 This project is licensed under *Open Source Licensing GPL V3* (see LICENSE.txt for details). License texts of 3rd Party applications can be found in LICENSE_3rdParty.md These other licenses are
 * [BOOST](https://www.boost.org) is licensed under *Boost Software License - Version 1.0 - August 17th, 2003*.
