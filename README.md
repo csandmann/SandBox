@@ -49,6 +49,7 @@ After completing, this script will tell you which redirect URI you need to white
 
 This is it, you can now use your SandBox. To see the log visit http://sandbox, to configure spotify visit http://sandbox/spotify
 
+
 ## Build Instructions (Not necessary for deployment)
 The SandBox can be conveniently built using cmake. First install all dependencies:
 ```
